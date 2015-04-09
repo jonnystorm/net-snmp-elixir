@@ -1,5 +1,6 @@
 net-snmp-elixir
 =======
+[![Build Status](https://travis-ci.org/jonnystorm/net-snmp-elixir.svg?branch=master)](https://travis-ci.org/jonnystorm/net-snmp-elixir)
 
 A thin layer of Elixir poured atop snmpget/snmpset. Consider using with [snmp-mib-elixir](https://github.com/jonnystorm/snmp-mib-elixir).
 
