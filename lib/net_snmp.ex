@@ -255,9 +255,16 @@ defmodule NetSNMP do
     ] |> Enum.join(" ")
   end
 
+  defp shell_cmd(command) do
+    command
+      |> :binary.bin_to_list
+      |> :os.cmd
+      |> :binary.list_to_bin
+  end
+
   def get(snmp_objects, agent, credential) when is_list(snmp_objects) do
     gen_snmpcmd(:get, snmp_objects, agent, credential)
-      |> Util.shell_cmd
+      |> shell_cmd
       |> parse_snmp_output
   end
   def get(snmp_object, agent, credential) do
@@ -266,7 +273,7 @@ defmodule NetSNMP do
 
   def set(snmp_objects, agent, credential) when is_list(snmp_objects) do
     gen_snmpcmd(:set, snmp_objects, agent, credential)
-      |> Util.shell_cmd
+      |> shell_cmd
       |> parse_snmp_output
   end
   def set(snmp_object, agent, credential) do
