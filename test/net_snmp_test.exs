@@ -15,45 +15,6 @@ defmodule NetSNMPTest do
       NetSNMP.agent("192.0.2.1", :blarg, 161)
     end
   end
-  
-  test "list_oid_to_string returns correct string" do
-    assert NetSNMP.list_oid_to_string([1,3,6,0,9,20,1]) == "1.3.6.0.9.20.1"
-  end
-
-  test "string_oid_to_list returns correct list" do
-    assert NetSNMP.string_oid_to_list("1.3.6.0.9.20.1") == [1,3,6,0,9,20,1]
-  end
-  test "string_oid_to_list returns correct list from OID with leading dot" do
-    assert NetSNMP.string_oid_to_list(".1.3.6.0.9.20.1") == [1,3,6,0,9,20,1]
-  end
-  test "string_oid_to_list returns correct list from OID with trailing dot" do
-    assert NetSNMP.string_oid_to_list("1.3.6.0.9.20.1.") == [1,3,6,0,9,20,1]
-  end
-  test "string_oid_to_list returns correct list from OID with leading/trailing dots" do
-    assert NetSNMP.string_oid_to_list(".1.3.6.0.9.20.1.") == [1,3,6,0,9,20,1]
-  end
-
-  test "object returns correct SNMP.Object with integer" do
-    assert NetSNMP.object("1.3.6.0.9.20.1", :integer, 1) ==
-      %NetSNMP.Object{
-        oid: [1,3,6,0,9,20,1],
-        type: 2,
-        value: 1
-      }
-  end
-  test "object returns correct SNMP.Object with octet_string" do
-    assert NetSNMP.object("1.3.6.0.9.20.1", :octet_string, "") ==
-      %NetSNMP.Object{
-        oid: [1,3,6,0,9,20,1],
-        type: 4,
-        value: ""
-      }
-  end
-  test "object fails for invalid type" do
-    assert_raise KeyError, fn ->
-      NetSNMP.object("1.3.6.0.9.20.1", :blarg, 1)
-    end
-  end
 
   test "credential returns correct keyword list for SNMPv2c" do
     assert NetSNMP.credential(:v2c, "ancommunity") ==
@@ -119,14 +80,5 @@ defmodule NetSNMPTest do
   test "to_string returns correct string for Agent" do
     assert to_string(NetSNMP.agent("192.0.2.1", :udp, 161))
       == "udp:192.0.2.1:161"
-  end
-
-  test "to_string returns correct string for Object of type integer" do
-    assert to_string(NetSNMP.object("1.3.6.0.9.20.1", :integer, 1))
-      == "1.3.6.0.9.20.1 i 1"
-  end
-  test "to_string returns correct string for Object of type octet string" do
-    assert to_string(NetSNMP.object("1.3.6.0.9.20.1", :octet_string, 1))
-      == "1.3.6.0.9.20.1 s 1"
   end
 end

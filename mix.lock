@@ -1,0 +1,1 @@
+%{"snmp_mib_ex": {:git, "https://github.com/jonnystorm/snmp-mib-elixir.git", "4b9dbaeae7502999668daaf3d42186a1b76f4f8d", []}}

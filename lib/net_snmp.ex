@@ -4,8 +4,6 @@
 # as published by Sam Hocevar. See the COPYING.WTFPL file for more details.
 
 defmodule NetSNMP do
-  @type asn1_tag :: 0 | 1..6 | 9..10
-  @type asn1_type :: :any|:boolean|:integer|:bit_string|:octet_string|:string|:null|:object_identifier|:real|:enumerated
   @type ip_protocol :: :udp | :tcp
   @type port_number :: 0..65535
 
@@ -30,81 +28,7 @@ defmodule NetSNMP do
       agent.port
     end
   end
-
-  defmodule Object do
-    defstruct oid: nil, type: nil, value: nil
-
-    @type t :: %Object{
-      oid: [non_neg_integer],
-      type: NetSNMP.asn1_tag,
-      value: String.t | number
-    }
-    
-    def oid(object) do
-      object.oid
-    end
-
-    def oid(object, new_value) when is_list(new_value) do
-      %Object{object|oid: new_value}
-    end
-
-    def type(object) do
-      object.type
-    end
-
-    def type(object, new_type) when is_atom(new_type) do
-      %Object{object|type: new_type}
-    end
-    
-    def value(object) do
-      object.value
-    end
-
-    def value(object, new_value)
-        when is_number(new_value) or is_binary(new_value) do
-      %Object{object|value: new_value}
-    end
-  end
   
-  def list_oid_to_string(list_oid) do
-    list_oid |> Enum.join(".")
-  end
-
-  def string_oid_to_list(string_oid) do
-    string_oid
-      |> String.strip(?.)
-      |> :binary.split(".", [:global])
-      |> Enum.map(&(String.to_integer &1))
-  end
-
-  def asn1_tag_to_type_char(type) do
-    %{
-      0 => "=",
-      1 => "i",
-      2 => "i",
-      3 => "s",
-      4 => "s",
-      5 => "=",
-      6 => "o",
-      9 => "d",
-      10 => "i"
-    } |> Map.fetch!(type)
-  end
-
-  def type_to_asn1_tag(type) do
-    %{
-      any: 0,
-      boolean: 1,
-      integer: 2,
-      bit_string: 3,
-      octet_string: 4, string: 4,
-      null: 5,
-      object_identifier: 6, oid: 6,
-      real: 9,
-      enumerated: 10
-    } |> Map.fetch!(type)
-  end
-
   @spec agent(String.t, ip_protocol, port_number) :: Agent.t
   def agent(host, ip_protocol, port)
       when ip_protocol in [:tcp, :udp] and port in 0..65535 do
@@ -113,22 +37,6 @@ defmodule NetSNMP do
   @spec agent(String.t) :: Agent.t
   def agent(host) do
     %Agent{host: host, ip_proto: :udp, port: 161}
-  end
-
-  @spec object(String.t, asn1_type, String.t | number) :: Object.t
-  def object(oid, type, value) do
-    %Object{
-      oid: string_oid_to_list(oid),
-      type: type_to_asn1_tag(type),
-      value: value
-    }
-  end
-
-  @spec index(Object.t, pos_integer) :: Object.t
-  def index(object, index) when is_integer(index) do
-    indexed_oid = Object.oid(object) ++ [index]
-
-    Object.oid(object, indexed_oid)
   end
 
   @spec credential(:v2c, String.t) :: Keyword.t
@@ -220,7 +128,7 @@ defmodule NetSNMP do
       [oid, _, type_string, value] = String.split(line)
       type = output_type_string_to_type(type_string)
 
-      {:ok, object(oid, type, value)}
+      {:ok, SNMPMIB.object(oid, type, value)}
     rescue
       _e in MatchError ->
         [_|error_words] = String.split(line)
@@ -243,7 +151,9 @@ defmodule NetSNMP do
       "snmpget -On",
       credential_to_snmpcmd_args(credential),
       to_string(agent) |
-        (for o <- snmp_objects, do: Object.oid(o) |> list_oid_to_string)
+        (for o <- snmp_objects do
+          SNMPMIB.Object.oid(o) |> SNMPMIB.list_oid_to_string
+        end)
     ] |> Enum.join(" ")
   end
   defp gen_snmpcmd(:set, snmp_objects, agent, credential)
@@ -297,14 +207,3 @@ defimpl String.Chars, for: NetSNMP.Agent do
   end
 end
 
-defimpl String.Chars, for: NetSNMP.Object do
-  import Kernel, except: [to_string: 1]
-
-  def to_string(object) do
-    [
-      object |> NetSNMP.Object.oid |> NetSNMP.list_oid_to_string,
-      object |> NetSNMP.Object.type |> NetSNMP.asn1_tag_to_type_char,
-      object |> NetSNMP.Object.value
-    ] |> Enum.join " "
-  end
-end
