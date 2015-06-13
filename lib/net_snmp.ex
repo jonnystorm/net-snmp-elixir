@@ -164,6 +164,14 @@ defmodule NetSNMP do
       to_string(agent) | (for o <- snmp_objects, do: to_string o)
     ] |> Enum.join(" ")
   end
+  defp gen_snmpcmd(:walk, snmp_object, agent, credential) do
+    [
+      "snmpset -On",
+      credential_to_snmpcmd_args(credential),
+      to_string(agent),
+      to_string(snmp_object)
+    ] |> Enum.join(" ")
+  end
 
   defp shell_cmd(command) do
     command
@@ -188,6 +196,17 @@ defmodule NetSNMP do
   end
   def set(snmp_object, agent, credential) do
     set([snmp_object], agent, credential)
+  end
+
+  def walk(snmp_objects, agent, credential) when is_list(snmp_objects) do
+    for o <- snmp_objects do
+      walk(o, agent, credential)
+    end |> List.flatten
+  end
+  def walk(snmp_object, agent, credential) do
+    gen_snmpcmd(:walk, snmp_object, agent, credential)
+      |> shell_cmd
+      |> parse_snmp_output
   end
 end
 
