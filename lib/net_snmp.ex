@@ -39,6 +39,13 @@ defmodule NetSNMP do
     %Agent{host: host, ip_proto: :udp, port: 161}
   end
 
+  @spec credential(:v1, String.t) :: Keyword.t
+  def credential(:v1, community) do
+    [
+      version: "1",
+      community: community
+    ]
+  end
   @spec credential(:v2c, String.t) :: Keyword.t
   def credential(:v2c, community) do
     [
@@ -112,15 +119,15 @@ defmodule NetSNMP do
 
   defp output_type_string_to_type(type_string) do
     type_string
-      |> String.rstrip(?:)
-      |> String.downcase
-      |> String.to_atom
+    |> String.rstrip(?:)
+    |> String.downcase
+    |> String.to_atom
   end
 
   defp output_error_message_to_cause(error_message) do
     error_message
-      |> String.lstrip(?=)
-      |> String.strip
+    |> String.lstrip(?=)
+    |> String.strip
   end
 
   defp parse_snmp_output_line(line) do
@@ -140,9 +147,16 @@ defmodule NetSNMP do
 
   defp parse_snmp_output(output) do
     output
-      |> String.strip
-      |> String.split("\n")
-      |> Enum.map(&(parse_snmp_output_line &1))
+    |> String.strip
+    |> String.split("\n")
+    |> Enum.map(&(parse_snmp_output_line &1))
+  end
+
+  defp objects_to_oids(snmp_objects) do
+    snmp_objects
+    |> Enum.map(fn object ->
+      SNMPMIB.Object.oid(object) |> SNMPMIB.list_oid_to_string
+    end)
   end
 
   defp gen_snmpcmd(:get, snmp_objects, agent, credential)
@@ -150,10 +164,7 @@ defmodule NetSNMP do
     [
       "snmpget -On",
       credential_to_snmpcmd_args(credential),
-      to_string(agent) |
-        (for o <- snmp_objects do
-          SNMPMIB.Object.oid(o) |> SNMPMIB.list_oid_to_string
-        end)
+      to_string(agent) | objects_to_oids(snmp_objects)
     ] |> Enum.join(" ")
   end
   defp gen_snmpcmd(:set, snmp_objects, agent, credential)
@@ -166,24 +177,23 @@ defmodule NetSNMP do
   end
   defp gen_snmpcmd(:walk, snmp_object, agent, credential) do
     [
-      "snmpset -On",
+      "snmpwalk -On",
       credential_to_snmpcmd_args(credential),
-      to_string(agent),
-      to_string(snmp_object)
+      to_string(agent) | objects_to_oids([snmp_object])
     ] |> Enum.join(" ")
   end
 
   defp shell_cmd(command) do
     command
-      |> :binary.bin_to_list
-      |> :os.cmd
-      |> :binary.list_to_bin
+    |> :binary.bin_to_list
+    |> :os.cmd
+    |> :binary.list_to_bin
   end
 
   def get(snmp_objects, agent, credential) when is_list(snmp_objects) do
     gen_snmpcmd(:get, snmp_objects, agent, credential)
-      |> shell_cmd
-      |> parse_snmp_output
+    |> shell_cmd
+    |> parse_snmp_output
   end
   def get(snmp_object, agent, credential) do
     get([snmp_object], agent, credential)
@@ -191,22 +201,22 @@ defmodule NetSNMP do
 
   def set(snmp_objects, agent, credential) when is_list(snmp_objects) do
     gen_snmpcmd(:set, snmp_objects, agent, credential)
-      |> shell_cmd
-      |> parse_snmp_output
+    |> shell_cmd
+    |> parse_snmp_output
   end
   def set(snmp_object, agent, credential) do
     set([snmp_object], agent, credential)
   end
 
   def walk(snmp_objects, agent, credential) when is_list(snmp_objects) do
-    for o <- snmp_objects do
-      walk(o, agent, credential)
-    end |> List.flatten
+    snmp_objects
+    |> Enum.map(fn object -> walk(object, agent, credential) end)
+    |> List.flatten
   end
   def walk(snmp_object, agent, credential) do
     gen_snmpcmd(:walk, snmp_object, agent, credential)
-      |> shell_cmd
-      |> parse_snmp_output
+    |> shell_cmd
+    |> parse_snmp_output
   end
 end
 
@@ -214,13 +224,9 @@ defimpl String.Chars, for: NetSNMP.Agent do
   import Kernel, except: [to_string: 1]
 
   def to_string(agent) do
-    transport_spec = agent
-      |> NetSNMP.Agent.ip_protocol
-      |> Kernel.to_string
+    transport_spec = agent |> NetSNMP.Agent.ip_protocol |> Kernel.to_string
     transport_addr = NetSNMP.Agent.host(agent)
-    transport_port = agent
-      |> NetSNMP.Agent.port
-      |> Kernel.to_string
+    transport_port = agent |> NetSNMP.Agent.port |> Kernel.to_string
 
     [transport_spec, transport_addr, transport_port] |> Enum.join(":")
   end
