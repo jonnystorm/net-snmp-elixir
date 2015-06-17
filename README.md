@@ -16,7 +16,7 @@ iex> credential = NetSNMP.credential(:v2c, "public")
 iex> agent = NetSNMP.agent("192.0.2.2")
 %NetSNMP.Agent{host: "192.0.2.2", ip_proto: :udp, port: 161}
 
-iex> sysname_object |> NetSNMP.index(0) |> NetSNMP.get(agent, credential)
+iex> sysname_object |> SNMPMIB.index(0) |> NetSNMP.get(agent, credential)
 [ok: %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 5, 0], type: 4, value: "R1"}]
 ```
 

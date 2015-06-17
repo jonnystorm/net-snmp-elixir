@@ -162,7 +162,7 @@ defmodule NetSNMP do
   defp gen_snmpcmd(:get, snmp_objects, agent, credential)
       when is_list(snmp_objects) do
     [
-      "snmpget -On",
+      "snmpget -One",
       credential_to_snmpcmd_args(credential),
       to_string(agent) | objects_to_oids(snmp_objects)
     ] |> Enum.join(" ")
@@ -170,14 +170,14 @@ defmodule NetSNMP do
   defp gen_snmpcmd(:set, snmp_objects, agent, credential)
       when is_list(snmp_objects) do
     [
-      "snmpset -On",
+      "snmpset -One",
       credential_to_snmpcmd_args(credential),
       to_string(agent) | (for o <- snmp_objects, do: to_string o)
     ] |> Enum.join(" ")
   end
   defp gen_snmpcmd(:walk, snmp_object, agent, credential) do
     [
-      "snmpwalk -On",
+      "snmpwalk -One",
       credential_to_snmpcmd_args(credential),
       to_string(agent) | objects_to_oids([snmp_object])
     ] |> Enum.join(" ")
