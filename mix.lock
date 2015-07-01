@@ -1,1 +1,3 @@
-%{"snmp_mib_ex": {:git, "https://github.com/jonnystorm/snmp-mib-elixir", "066a5fdb6e5bfa6a0ac2d95832dac04bac84a634", []}}
+%{"amrita": {:git, "git://github.com/josephwilk/amrita.git", "f51ae5225fb77ed0238e29fc80dbfa95e77c3ceb", []},
+  "meck": {:git, "git://github.com/eproxus/meck.git", "fc362e037f424250130bca32d6bf701f2f49dc75", [branch: "master"]},
+  "snmp_mib_ex": {:git, "https://github.com/jonnystorm/snmp-mib-elixir", "03e17c223f866e306b738360aabab5fc27283632", []}}

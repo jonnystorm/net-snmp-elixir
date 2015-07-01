@@ -152,6 +152,28 @@ defmodule NetSNMP do
     |> Enum.map(&(parse_snmp_output_line &1))
   end
 
+  defp columns_and_values_to_data_model(columns, values) do
+    for pair <- Enum.zip(columns, values), into: %{}, do: pair
+  end
+  def parse_snmp_table_output(output) do
+    [headers | rows] = output
+    |> String.split("\n")
+    |> Enum.drop(1)
+    |> Enum.filter(fn "" -> false; _ -> true end)
+
+    columns = headers
+    |> String.split
+    |> Enum.map(fn header ->
+      header |> String.downcase |> String.to_atom
+    end)
+
+    rows
+    |> Stream.map(fn row -> String.split(row) end)
+    |> Enum.map(fn values ->
+      columns_and_values_to_data_model(columns, values)
+    end)
+  end
+
   defp objects_to_oids(snmp_objects) do
     snmp_objects
     |> Enum.map(fn object ->
@@ -173,6 +195,13 @@ defmodule NetSNMP do
       "snmpset -One",
       credential_to_snmpcmd_args(credential),
       to_string(agent) | (for o <- snmp_objects, do: to_string o)
+    ] |> Enum.join(" ")
+  end
+  defp gen_snmpcmd(:table, snmp_object, agent, credential) do
+    [
+      "snmptable -Clb -Oe",
+      credential_to_snmpcmd_args(credential),
+      to_string(agent) | objects_to_oids([snmp_object])
     ] |> Enum.join(" ")
   end
   defp gen_snmpcmd(:walk, snmp_object, agent, credential) do
@@ -206,6 +235,17 @@ defmodule NetSNMP do
   end
   def set(snmp_object, agent, credential) do
     set([snmp_object], agent, credential)
+  end
+
+  def table(snmp_objects, agent, credential) when is_list(snmp_objects) do
+    snmp_objects
+    |> Enum.map(fn object -> table(object, agent, credential) end)
+    |> List.flatten
+  end
+  def table(snmp_object, agent, credential) do
+    gen_snmpcmd(:table, snmp_object, agent, credential)
+    |> shell_cmd
+    |> parse_snmp_table_output
   end
 
   def walk(snmp_objects, agent, credential) when is_list(snmp_objects) do
