@@ -162,13 +162,13 @@ defmodule NetSNMP do
     |> Enum.filter(fn "" -> false; _ -> true end)
 
     columns = headers
-    |> String.split
+    |> String.split("||")
     |> Enum.map(fn header ->
       header |> String.downcase |> String.to_atom
     end)
 
     rows
-    |> Stream.map(fn row -> String.split(row) end)
+    |> Stream.map(fn row -> String.split(row, "||") end)
     |> Enum.map(fn values ->
       columns_and_values_to_data_model(columns, values)
     end)
@@ -199,7 +199,7 @@ defmodule NetSNMP do
   end
   defp gen_snmpcmd(:table, snmp_object, agent, credential) do
     [
-      "snmptable -Clb -Oe",
+      "snmptable -Clbf '||' -Oe",
       credential_to_snmpcmd_args(credential),
       to_string(agent) | objects_to_oids([snmp_object])
     ] |> Enum.join(" ")
