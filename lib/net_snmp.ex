@@ -137,7 +137,7 @@ defmodule NetSNMP do
 
       {:ok, SNMPMIB.object(oid, type, value)}
     rescue
-      _e in MatchError ->
+      _ ->
         [_|error_words] = String.split(line)
         cause = error_words |> Enum.join(" ") |> output_error_message_to_cause
 
@@ -157,6 +157,7 @@ defmodule NetSNMP do
   end
   def parse_snmp_table_output(output) do
     [headers | rows] = output
+    |> String.strip
     |> String.split("\n")
     |> Enum.drop(1)
     |> Enum.filter(fn "" -> false; _ -> true end)
