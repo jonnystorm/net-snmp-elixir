@@ -149,7 +149,7 @@ defmodule NetSNMP do
     output
     |> String.strip
     |> String.split("\n")
-    |> Enum.map(&(parse_snmp_output_line &1))
+    |> Enum.map(&parse_snmp_output_line(&1))
   end
 
   defp columns_and_values_to_data_model(columns, values) do
@@ -185,7 +185,7 @@ defmodule NetSNMP do
   defp gen_snmpcmd(:get, snmp_objects, agent, credential)
       when is_list(snmp_objects) do
     [
-      "snmpget -mALL -One",
+      "snmpget -Le -mALL -One",
       credential_to_snmpcmd_args(credential),
       to_string(agent) | objects_to_oids(snmp_objects)
     ] |> Enum.join(" ")
@@ -193,21 +193,21 @@ defmodule NetSNMP do
   defp gen_snmpcmd(:set, snmp_objects, agent, credential)
       when is_list(snmp_objects) do
     [
-      "snmpset -mALL -One",
+      "snmpset -Le -mALL -One",
       credential_to_snmpcmd_args(credential),
       to_string(agent) | (for o <- snmp_objects, do: to_string o)
     ] |> Enum.join(" ")
   end
   defp gen_snmpcmd(:table, snmp_object, agent, credential) do
     [
-      "snmptable -mALL -Clbf '||' -Oe",
+      "snmptable -Le -mALL -Clbf '||' -Oe",
       credential_to_snmpcmd_args(credential),
       to_string(agent) | objects_to_oids([snmp_object])
     ] |> Enum.join(" ")
   end
   defp gen_snmpcmd(:walk, snmp_object, agent, credential) do
     [
-      "snmpwalk -mALL -One",
+      "snmpwalk -Le -mALL -One",
       credential_to_snmpcmd_args(credential),
       to_string(agent) | objects_to_oids([snmp_object])
     ] |> Enum.join(" ")
