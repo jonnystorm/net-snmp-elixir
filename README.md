@@ -7,22 +7,23 @@ A thin layer of Elixir poured atop net-snmp utilities. To be used with [snmp-mib
 ### To use:
 
 ```
-iex> sysname_object = ".1.3.6.1.2.1.1.5" |> SNMPMIB.object(:string, "")
-%SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 5], type: 4, value: ""}
-
-iex> credential = NetSNMP.credential(:v2c, "public")
+iex> credential = NetSNMP.credential :v2c, "public"
 [version: "2c", community: "public"]
 
-iex> agent = NetSNMP.agent("192.0.2.2")
+iex> agent = NetSNMP.agent "192.0.2.2"
 %NetSNMP.Agent{host: "192.0.2.2", ip_proto: :udp, port: 161}
+
+iex> sysname_object = SNMPMIB.object ".1.3.6.1.2.1.1.5", :string, ""
+%SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 5], type: 4, value: ""}
 
 iex> sysname_object |> SNMPMIB.index(0) |> NetSNMP.get(agent, credential)
 [ok: %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 5, 0], type: 4, value: "R1"}]
 
-iex> ip_net_to_media_table_object = "1.3.6.1.2.1.4.22" |> SNMPMIB.object(:any, nil)
+
+iex> ip_net_to_media_table_object = SNMPMIB.object "1.3.6.1.2.1.4.22", :any, nil
 [ok: %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 4, 22], type: 0, value: nil}]
 
-iex> ip_net_to_media_table_object |> NetSNMP.walk(agent, credential)
+iex> NetSNMP.walk ip_net_to_media_table_object, agent, credential
 [ok: %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 4, 22, 1, 1, 2, 192, 0, 2, 1],
   type: 2, value: 2},
  ok: %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 4, 22, 1, 1, 2, 192, 0, 2, 2],
@@ -39,6 +40,21 @@ iex> ip_net_to_media_table_object |> NetSNMP.walk(agent, credential)
   type: 2, value: 3},
  ok: %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 4, 22, 1, 4, 2, 192, 0, 2, 2],
   type: 2, value: 4}]
+
+
+iex> ip_cidr_route_table_object = SNMPMIB.object "1.3.6.1.2.1.4.24.4", :any, nil
+%SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 4, 24, 4], type: 0, value: nil}
+
+iex> NetSNMP.table ip_cidr_route_table_object, agent, credential
+[%{age: "313", dest: "192.0.2.2", ifindex: "2", info: "SNMPv2-SMI::zeroDotZero",
+   mask: "255.255.255.254", metric1: "0", metric2: "-1", metric3: "-1",
+   metric4: "-1", metric5: "-1", nexthop: "0.0.0.0", nexthopas: "0", proto: "2",
+   status: "1", tos: "0", type: "3"},
+ %{age: "2", dest: "192.0.2.33", ifindex: "6", info: "SNMPv2-SMI::zeroDotZero",
+   mask: "255.255.255.255", metric1: "0", metric2: "-1", metric3: "-1",
+   metric4: "-1", metric5: "-1", nexthop: "0.0.0.0", nexthopas: "0", proto: "2",
+   status: "1", tos: "0", type: "3"}]
+
 ```
 
 For now, this assumes you (1) have net-snmp utilities installed and (2) snmpget, snmpset, etc. are in your path.
