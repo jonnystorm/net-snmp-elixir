@@ -87,9 +87,9 @@ defmodule NetSNMPTest do
   fact "parses snmptable output" do
     output = "SNMP table: IP-FORWARD-MIB::ipCidrRouteTable
 
-Dest       Mask            Tos NextHop    IfIndex Type Proto Age  Info                    NextHopAS Metric1 Metric2 Metric3 Metric4 Metric5 Status 
-1.1.1.1    255.255.255.255 0   0.0.0.0    6       3    2     3804 SNMPv2-SMI::zeroDotZero 0         0       -1      -1      -1      -1      1      
-2.2.2.2    255.255.255.255 0   172.31.0.3 1       4    13    0    SNMPv2-SMI::zeroDotZero 0         2       -1      -1      -1      -1      1      
+Dest||Mask||Tos||NextHop||IfIndex||Type||Proto||Age||Info||NextHopAS||Metric1||Metric2||Metric3||Metric4||Metric5||Status
+1.1.1.1||255.255.255.255||0||0.0.0.0||6||3||2||3804||SNMPv2-SMI::zeroDotZero||0||0||-1||-1||-1||-1||1
+2.2.2.2||255.255.255.255||0||172.31.0.3||1||4||13||0||SNMPv2-SMI::zeroDotZero||0||2||-1||-1||-1||-1||1
 "
 
     NetSNMP.parse_snmp_table_output(output)
