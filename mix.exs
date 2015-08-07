@@ -17,7 +17,8 @@ defmodule NetSNMP.Mixfile do
   defp deps do
     [
       {:amrita, "~>0.4", github: "josephwilk/amrita"},
-      {:snmp_mib_ex, git: "https://github.com/jonnystorm/snmp-mib-elixir"}
+      {:snmp_mib_ex, git: "https://github.com/jonnystorm/snmp-mib-elixir"},
+      {:pathname_ex, git: "https://github.com/jonnystorm/pathname-elixir"}
     ]
   end
 end

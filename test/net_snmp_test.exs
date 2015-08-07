@@ -6,16 +6,6 @@
 defmodule NetSNMPTest do
   use Amrita.Sweet
 
-  fact "agent returns correct Agent" do
-    agent = %NetSNMP.Agent{host: "192.0.2.1", ip_proto: :udp, port: 161}
-
-    NetSNMP.agent("192.0.2.1", :udp, 161) |> agent
-  end
-  fact "agent fails for invalid protocol" do
-    fn -> NetSNMP.agent("192.0.2.1", :blarg, 161) end
-    |> raises FunctionClauseError
-  end
-
   fact "credential returns correct keyword list for SNMPv2c" do
     NetSNMP.credential(:v2c, "ancommunity")
     |> [version: "2c", community: "ancommunity"]
@@ -80,8 +70,11 @@ defmodule NetSNMPTest do
     |> "-v3 -lauthPriv -u anname -a sha -A anpass -x aes -X anpass2"
   end
 
-  fact "to_string returns correct string for Agent" do
-    to_string(NetSNMP.agent("192.0.2.1", :udp, 161)) |> "udp:192.0.2.1:161"
+  fact "to_string returns correct string for Pathname" do
+    to_string(Pathname.new("192.0.2.1", :udp, [port: 161])) |> "udp:192.0.2.1:161"
+  end
+  fact "to_string returns correct string for Pathname with no protocol or params specified" do
+    to_string(Pathname.new "192.0.2.1") |> "192.0.2.1"
   end
 
   fact "parses snmptable output" do
