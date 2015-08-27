@@ -91,95 +91,52 @@ defmodule NetSNMP do
 
   defp get_snmpcmd_error(message) do
     %{
-      "Generic error"                                                                                 => :snmperr_generr,
-      "Invalid local port"                                                                            => :snmperr_bad_locport,
-      "Unknown host"                                                                                  => :snmperr_bad_address,
-      "Unknown session"                                                                               => :snmperr_bad_session,
-      "Too long"                                                                                      => :snmperr_too_long,
-      "No socket"                                                                                     => :snmperr_no_socket,
-      "Cannot send V2 PDU on V1 session"                                                              => :snmperr_v2_in_v1,
-      "Cannot send V1 PDU on V2 session"                                                              => :snmperr_v1_in_v2,
-      "Bad value for non-repeaters"                                                                   => :snmperr_bad_repeaters,
-      "Bad value for max-repetitions"                                                                 => :snmperr_bad_repetitions,
-      "Error building ASN.1 representation"                                                           => :snmperr_bad_asn1_build,
-      "Failure in sendto"                                                                             => :snmperr_bad_sendto,
-      "Bad parse of ASN.1 type"                                                                       => :snmperr_bad_parse,
-      "Bad version specified"                                                                         => :snmperr_bad_version,
-      "Bad source party specified"                                                                    => :snmperr_bad_src_party,
-      "Bad destination party specified"                                                               => :snmperr_bad_dst_party,
-      "Bad context specified"                                                                         => :snmperr_bad_context,
-      "Bad community specified"                                                                       => :snmperr_bad_community,
-      "Cannot send noAuth/Priv"                                                                       => :snmperr_noauth_despriv,
-      "Bad ACL definition"                                                                            => :snmperr_bad_acl,
-      "Bad Party definition"                                                                          => :snmperr_bad_party,
-      "Session abort failure"                                                                         => :snmperr_abort,
-      "Unknown PDU type"                                                                              => :snmperr_unknown_pdu,
-      "Timeout"                                                                                       => :snmperr_timeout,
-      "Failure in recvfrom"                                                                           => :snmperr_bad_recvfrom,
-      "Unable to determine contextEngineID"                                                           => :snmperr_bad_eng_id,
-      "No securityName specified"                                                                     => :snmperr_bad_sec_name,
-      "Unable to determine securityLevel"                                                             => :snmperr_bad_sec_level,
-      "ASN.1 parse error in message"                                                                  => :snmperr_asn_parse_err,
-      "Unknown security model in message"                                                             => :snmperr_unknown_sec_model,
-      "Invalid message (e.g. msgFlags)"                                                               => :snmperr_invalid_msg,
-      "Unknown engine ID"                                                                             => :snmperr_unknown_eng_id,
-      "Unknown user name"                                                                             => :snmperr_unknown_user_name,
-      "Unsupported security level"                                                                    => :snmperr_unsupported_sec_level,
-      "Authentication failure (incorrect password, community or key)"                                 => :snmperr_authentication_failure,
-      "Not in time window"                                                                            => :snmperr_not_in_time_window,
-      "Decryption error"                                                                              => :snmperr_decryption_err,
-      "SCAPI general failure"                                                                         => :snmperr_sc_general_failure,
-      "SCAPI sub-system not configured"                                                               => :snmperr_sc_not_configured,
-      "Key tools not available"                                                                       => :snmperr_kt_not_available,
-      "Unknown Report message"                                                                        => :snmperr_unknown_report,
-      "USM generic error"                                                                             => :snmperr_usm_genericerror,
-      "USM unknown security name (no such user exists)"                                               => :snmperr_usm_unknownsecurityname,
-      "USM unsupported security level (this user has not been configured for that level of security)" => :snmperr_usm_unsupportedsecuritylevel,
-      "USM encryption error"                                                                          => :snmperr_usm_encryptionerror,
-      "USM authentication failure (incorrect password or key)"                                        => :snmperr_usm_authenticationfailure,
-      "USM parse error"                                                                               => :snmperr_usm_parseerror,
-      "USM unknown engineID"                                                                          => :snmperr_usm_unknownengineid,
-      "USM not in time window"                                                                        => :snmperr_usm_notintimewindow,
-      "USM decryption error"                                                                          => :snmperr_usm_decryptionerror,
-      "MIB not initialized"                                                                           => :snmperr_nomib,
-      "Value out of range"                                                                            => :snmperr_range,
-      "Sub-id out of range"                                                                           => :snmperr_max_subid,
-      "Bad sub-id in object identifier"                                                               => :snmperr_bad_subid,
-      "Object identifier too long"                                                                    => :snmperr_long_oid,
-      "Bad value name"                                                                                => :snmperr_bad_name,
-      "Bad value notation"                                                                            => :snmperr_value,
-      "Unknown Object Identifier"                                                                     => :snmperr_unknown_objid,
-      "No PDU in snmp_send"                                                                           => :snmperr_null_pdu,
-      "Missing variables in PDU"                                                                      => :snmperr_no_vars,
-      "Bad variable type"                                                                             => :snmperr_var_type,
-      "Out of memory (malloc failure)"                                                                => :snmperr_malloc,
-      "Kerberos related error"                                                                        => :snmperr_krb5,
-      "Protocol error"                                                                                => :snmperr_protocol,
-      "OID not increasing"                                                                            => :snmperr_oid_nonincreasing,
-      "Context probe"                                                                                 => :snmperr_just_a_context_probe,
-      "Configuration data found but the transport can't be configured"                                => :snmperr_transport_no_config,
-      "Transport configuration failed"                                                                => :snmperr_transport_config_error
+      "(noError) No Error"                                                                           => :snmp_err_noerror,
+      "(tooBig) Response message would have been too large."                                         => :snmp_err_toobig,
+      "(noSuchName) There is no such variable name in this MIB."                                     => :snmp_err_nosuchname,
+      "(badValue) The value given has the wrong type or length."                                     => :snmp_err_badvalue,
+      "(readOnly) The two parties used do not have access to use the specified SNMP PDU."            => :snmp_err_readonly,
+      "(genError) A general failure occured"                                                         => :snmp_err_generr,
+      "noAccess"                                                                                     => :snmp_err_noaccess,
+      "wrongType (The set datatype does not match the data type the agent expects)"                  => :snmp_err_wrongtype,
+      "wrongLength (The set value has an illegal length from what the agent expects)"                => :snmp_err_wronglength,
+      "wrongEncoding"                                                                                => :snmp_err_wrongencoding,
+      "wrongValue (The set value is illegal or unsupported in some way)"                             => :snmp_err_wrongvalue,
+      "noCreation (That table does not support row creation or that object can not ever be created)" => :snmp_err_nocreation,
+      "inconsistentValue (The set value is illegal or unsupported in some way)"                      => :snmp_err_inconsistentvalue,
+      "resourceUnavailable (This is likely a out-of-memory failure within the agent)"                => :snmp_err_resourceunavailable,
+      "commitFailed"                                                                                 => :snmp_err_commitfailed,
+      "undoFailed"                                                                                   => :snmp_err_undofailed,
+      "authorizationError (access denied to that object)"                                            => :snmp_err_authorizationerror,
+      "notWritable (That object does not support modification)"                                      => :snmp_err_notwritable,
+      "inconsistentName (That object can not currently be created)"                                  => :snmp_err_inconsistentname
     }[message]
   end
 
-  defp output_error_message_to_cause(error_message) do
-    [error|_] = String.split error_message, "("
+  defp parse_snmp_error(error_line) do
+    case String.split(error_line) do
+      ["Timeout:"|_] ->
+        {:error, :timeout}
 
-    error
-    |> String.lstrip(?=)
-    |> String.strip
-  end
+      ["Reason:"|reason_words] ->
+        cause = reason_words
+        |> Enum.join(" ")
+        |> get_snmpcmd_error
 
-  defp parse_snmp_error(output) do
-    [line|_] = String.split output, "\n"
-    [_|error_words] = String.split(line)
+        {:error, cause}
 
-    cause = error_words
-    |> Enum.join(" ")
-    |> output_error_message_to_cause
-    |> get_snmpcmd_error
+      [_, "=", "No", "Such", "Object"|_] ->
+        {:error, :snmp_nosuchobject}
 
-    {:error, cause}
+      [_, "=", "No", "Such", "Instance"|_] ->
+        {:error, :snmp_nosuchinstance}
+
+      [_, "=", "No", "more", "variables"|_] ->
+        {:error, :snmp_endofmibview}
+
+      _ ->
+        nil
+    end
   end
 
   defp parse_snmp_output_line(line) do
@@ -191,7 +148,7 @@ defmodule NetSNMP do
       {:ok, SNMPMIB.object(oid, type, value)}
     rescue
       _ ->
-        parse_snmp_error(line)
+        parse_snmp_error line
     end
   end
 
@@ -199,7 +156,13 @@ defmodule NetSNMP do
     output
     |> String.strip
     |> String.split("\n")
-    |> Enum.map(&parse_snmp_output_line(&1))
+    |> Enum.reduce([], fn(line, acc) ->
+      if result = parse_snmp_output_line(line) do
+        acc ++ [result]
+      else
+        acc
+      end
+    end)
   end
 
   defp columns_and_values_to_data_model(columns, values) do
