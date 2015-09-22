@@ -4,6 +4,8 @@
 # as published by Sam Hocevar. See the COPYING.WTFPL file for more details.
 
 defmodule NetSNMP do
+  require Logger
+
   @spec credential(:v1, String.t) :: Keyword.t
   def credential(:v1, community) do
     [
@@ -58,25 +60,25 @@ defmodule NetSNMP do
     _credential_to_snmpcmd_args tail, ["-v#{version}"|acc]
   end
   defp _credential_to_snmpcmd_args([{:community, community}|tail], acc) do
-    _credential_to_snmpcmd_args tail, acc ++ ["-c #{community}"]
+    _credential_to_snmpcmd_args tail, acc ++ ["-c '#{community}'"]
   end
   defp _credential_to_snmpcmd_args([{:sec_level, sec_level}|tail], acc) do
     _credential_to_snmpcmd_args tail, acc ++ ["-l#{sec_level}"]
   end
   defp _credential_to_snmpcmd_args([{:sec_name, sec_name}|tail], acc) do
-    _credential_to_snmpcmd_args tail, acc ++ ["-u #{sec_name}"]
+    _credential_to_snmpcmd_args tail, acc ++ ["-u '#{sec_name}'"]
   end
   defp _credential_to_snmpcmd_args([{:auth_proto, auth_proto}|tail], acc) do
     _credential_to_snmpcmd_args tail, acc ++ ["-a #{auth_proto}"]
   end
   defp _credential_to_snmpcmd_args([{:auth_pass, auth_pass}|tail], acc) do
-    _credential_to_snmpcmd_args tail, acc ++ ["-A #{auth_pass}"]
+    _credential_to_snmpcmd_args tail, acc ++ ["-A '#{auth_pass}'"]
   end
   defp _credential_to_snmpcmd_args([{:priv_proto, priv_proto}|tail], acc) do
     _credential_to_snmpcmd_args tail, acc ++ ["-x #{priv_proto}"]
   end
   defp _credential_to_snmpcmd_args([{:priv_pass, priv_pass}|tail], acc) do
-    _credential_to_snmpcmd_args tail, acc ++ ["-X #{priv_pass}"]
+    _credential_to_snmpcmd_args tail, acc ++ ["-X '#{priv_pass}'"]
   end
   def credential_to_snmpcmd_args(credential) do
     _credential_to_snmpcmd_args credential, []
@@ -153,6 +155,8 @@ defmodule NetSNMP do
   end
 
   defp parse_snmp_output(output) do
+    Logger.debug "Output is '#{inspect output}'"
+
     output
     |> String.strip
     |> String.split("\n")
