@@ -67,7 +67,7 @@ defmodule NetSNMPTest do
     ]
 
     NetSNMP.credential_to_snmpcmd_args(test_creds)
-    |> "-v3 -lauthPriv -u anname -a sha -A anpass -x aes -X anpass2"
+    |> "-v3 -lauthPriv -u 'anname' -a sha -A 'anpass' -x aes -X 'anpass2'"
   end
 
   fact "to_string returns correct string for Pathname" do
