@@ -1,4 +1,4 @@
 %{"amrita": {:git, "https://github.com/josephwilk/amrita", "f51ae5225fb77ed0238e29fc80dbfa95e77c3ceb", []},
-  "meck": {:git, "https://github.com/eproxus/meck", "710ad9a77c0ae364d48812c02bd265367f469d49", [branch: "master"]},
-  "pathname_ex": {:git, "https://github.com/jonnystorm/pathname-elixir", "9bd6e1792ac8f67da18cca2d766d4302532cfc16", []},
-  "snmp_mib_ex": {:git, "https://github.com/jonnystorm/snmp-mib-elixir", "03e17c223f866e306b738360aabab5fc27283632", []}}
+  "meck": {:git, "https://github.com/eproxus/meck", "0845277398b8326f9dddddd9fc3cf73467ba6877", [branch: "master"]},
+  "pathname_ex": {:git, "https://github.com/jonnystorm/pathname-elixir", "121cc487ca09af60d856cc075bf128e48d00a73d", []},
+  "snmp_mib_ex": {:git, "https://github.com/jonnystorm/snmp-mib-elixir", "1f3e71c57c771327d4a5d2281059bd42479406b2", []}}
