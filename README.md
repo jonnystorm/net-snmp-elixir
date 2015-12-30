@@ -11,7 +11,7 @@ iex> credential = NetSNMP.credential :v2c, "public"
 [version: "2c", community: "public"]
 
 iex> agent = Pathname.new "192.0.2.2"
-%NetSNMP.Agent{host: "192.0.2.2", ip_proto: nil, nil}
+%Pathname{address: "192.0.2.2", protocol: nil, protocol_params: nil}
 
 iex> sysname_object = SNMPMIB.object ".1.3.6.1.2.1.1.5", :string, ""
 %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 5], type: 4, value: ""}
@@ -48,5 +48,5 @@ iex> NetSNMP.table ip_cidr_route_table_object, agent, credential
    status: "1", tos: "0", type: "3"}]
 ```
 
-For now, this assumes you (1) have net-snmp utilities installed and (2) snmpget, snmpset, etc. are in your path.
+For now, this assumes you (1) have net-snmp utilities installed and (2) snmpget, snmpset, etc. are in your $PATH.
 
