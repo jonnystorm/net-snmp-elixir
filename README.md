@@ -10,8 +10,9 @@ A thin layer of Elixir poured atop net-snmp utilities. To be used with [snmp-mib
 iex> credential = NetSNMP.credential :v2c, "public"
 [version: "2c", community: "public"]
 
-iex> agent = Pathname.new "192.0.2.2"
-%Pathname{address: "192.0.2.2", protocol: nil, protocol_params: nil}
+iex> agent = URI.parse "snmp://192.0.2.2"
+%URI{authority: "192.0.2.2", fragment: nil, host: "192.0.2.2", path: nil,
+ port: nil, query: nil, scheme: "snmp", userinfo: nil}
 
 iex> sysname_object = SNMPMIB.object ".1.3.6.1.2.1.1.5", :string, ""
 %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 5], type: 4, value: ""}
