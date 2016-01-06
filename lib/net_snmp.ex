@@ -112,7 +112,7 @@ defmodule NetSNMP do
     |> Enum.join(" ")
   end
   defp gen_snmpcmd(:table, snmp_object, uri, credential) do
-    [ "snmptable -Le -mALL -Clbf '||' -OUet",
+    [ "snmptable -Le -mALL -Clbf '||' -OXUet",
       credential_to_snmpcmd_args(credential),
       uri_to_agent_string(uri) | objects_to_oids([snmp_object])
     ]
