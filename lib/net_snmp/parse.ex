@@ -87,73 +87,63 @@ defmodule NetSNMP.Parse do
         [value] ->
           # Displaying timeticks as a number strips them of their type,
           #   requiring we restore the correct type. To the best of my
-          #   knowledge, this is unique for timeticks
+          #   knowledge, this is unique to timeticks
           {oid, :timeticks, value}
       end
 
     rescue
       _ ->
-        # Assume unmatched output comes in the form of a known error
         parse_snmp_error line
     end
   end
 
   @doc """
-  Overcomplicated parsing process imbued with a sense of fear and uncertainty,
-  largely a product of unencapsulated, multi-line output.
+  Overcomplicated parsing process imbued with fear and uncertainty. Largely a
+  product of having to treat unencapsulated, multi-line output.
+
+  * When not already processing an oid-type-value tuple, try parsing the next line
+  ** If the line was a known error, append it to the accumulator
+  ** If the line was an oid-type-value tuple, set it aside and process the next line
+  ** Otherwise, ignore the line
+
+  * When already processing an oid-type-value tuple, try parsing the next line
+  ** If the line was a known error, append it to the accumulator
+  ** If the line was an oid-type-value tuple, append the one we were already processing to the accumulator and process the next
+  ** Otherwise, assume the line is part of the value for the tuple we're already processing and append it to the current value
+
+  * When we're out of lines, append the last object (if there is one) and return the accumulator
   """
   defp _parse_snmp_output([], {{}, acc}) do
-    # When we're out of lines, return the accumulator
-
     acc
   end
   defp _parse_snmp_output([], {{oid, type, value}, acc}) do
-    # When we're out of lines, append the last object and return the accumulator
-
     object = SNMPMIB.object oid, type, value
 
     acc ++ [ok: object]
   end
   defp _parse_snmp_output([line|rest], {{}, acc}) do
-    # When not already processing an oid-type-value tuple, try parsing the next line
-
     case parse_snmp_output_line(line) do
-      {:error, _} = result ->
-        # If the line was an error, append it to the accumulator
-
+      {:error, _error} = result ->
         _parse_snmp_output rest, {{}, acc ++ [result]}
 
-      {_, _, _} = result ->
-        # If the line was an oid-type-value tuple, set it aside and process the
-        #   next line
-
+      {_oid, _type, _value} = result ->
         _parse_snmp_output rest, {result, acc}
 
       nil ->
-        # If the line was neither a known error nor an oid-type-value tuple,
-        #   ignore it
-
         _parse_snmp_output rest, {{}, acc}
     end
   end
   defp _parse_snmp_output([line|rest], {{oid, type, value}, acc}) do
-    # When already processing an oid-type-value tuple, try parsing the next line
-
     case parse_snmp_output_line(line) do
-      {:error, _} = result ->
-        # If the line was an error, append it to the accumulator
+      {:error, _error} = result ->
         _parse_snmp_output rest, {{}, acc ++ [result]}
 
-      {_, _, _} = result ->
-        # If the line was an oid-type-value tuple, append the one we were
-        #   already processing to the accumulator and process the next line
+      {_oid, _type, _value} = result ->
         object = SNMPMIB.object oid, type, value
 
         _parse_snmp_output rest, {result, acc ++ [ok: object]}
 
       nil ->
-        # If the line was neither a known error nor an oid-type-value tuple,
-        #   assume it's part of the value for the tuple we're already processing
         new_value = "#{value}\n#{line}"
 
         _parse_snmp_output rest, {{oid, type, new_value}, acc}
