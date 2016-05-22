@@ -86,44 +86,41 @@ defmodule NetSNMP do
   end
 
   defp objects_to_oids(snmp_objects) do
-    Enum.map(snmp_objects, fn object ->
+    Enum.map snmp_objects, fn object ->
       object
         |> SNMPMIB.Object.oid
         |> SNMPMIB.list_oid_to_string
-    end)
+    end
   end
 
-  defp gen_snmpcmd(:get, snmp_objects, uri, credential)
-      when is_list(snmp_objects) do
-
+  defp gen_snmpcmd(:get, snmp_objects, uri, credential) do
     [ "snmpget -Le -mALL -OUnet",
       credential_to_snmpcmd_args(credential),
       uri_to_agent_string(uri) | objects_to_oids(snmp_objects)
-    ]
-    |> Enum.join(" ")
-  end
-  defp gen_snmpcmd(:set, snmp_objects, uri, credential)
-      when is_list(snmp_objects) do
 
+    ] |> Enum.join(" ")
+  end
+  defp gen_snmpcmd(:set, snmp_objects, uri, credential) do
     [ "snmpset -Le -mALL -OUnet",
       credential_to_snmpcmd_args(credential),
-      uri_to_agent_string(uri) | (for o <- snmp_objects, do: to_string o)
-    ]
-    |> Enum.join(" ")
-  end
-  defp gen_snmpcmd(:table, snmp_object, uri, credential) do
-    [ "snmptable -Le -mALL -Clbf '||' -OXUet",
-      credential_to_snmpcmd_args(credential),
-      uri_to_agent_string(uri) | objects_to_oids([snmp_object])
-    ]
-    |> Enum.join(" ")
+      uri_to_agent_string(uri) | Enum.map(snmp_objects, &to_string(&1))
+
+    ] |> Enum.join(" ")
   end
   defp gen_snmpcmd(:walk, snmp_object, uri, credential) do
     [ "snmpwalk -Le -mALL -OUnet",
       credential_to_snmpcmd_args(credential),
       uri_to_agent_string(uri) | objects_to_oids([snmp_object])
-    ]
-    |> Enum.join(" ")
+
+    ] |> Enum.join(" ")
+  end
+
+  defp gen_snmpcmd(:table, snmp_object, uri, credential, field_delim \\ "||") do
+    [ "snmptable -Le -mALL -Clbf '#{field_delim}' -OXUet",
+      credential_to_snmpcmd_args(credential),
+      uri_to_agent_string(uri) | objects_to_oids([snmp_object])
+
+    ] |> Enum.join(" ")
   end
 
   defp shell_cmd(command) do
@@ -153,7 +150,7 @@ defmodule NetSNMP do
 
   def table(snmp_objects, uri, credential) when is_list snmp_objects do
     snmp_objects
-      |> Enum.map(fn object -> table(object, uri, credential) end)
+      |> Enum.map(&table(&1, uri, credential))
       |> List.flatten
   end
   def table(snmp_object, uri, credential) when not is_list snmp_object do
@@ -164,7 +161,7 @@ defmodule NetSNMP do
 
   def walk(snmp_objects, uri, credential) when is_list snmp_objects do
     snmp_objects
-      |> Enum.map(fn object -> walk(object, uri, credential) end)
+      |> Enum.map(&walk(&1, uri, credential))
       |> List.flatten
   end
   def walk(snmp_object, uri, credential) do

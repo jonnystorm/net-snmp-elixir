@@ -11,9 +11,7 @@ defmodule NetSNMP.Parse do
   "Counter32:"       -> :counter32
   "Network Address:" -> :network_address
   "Hex-STRING:"      -> :hex_string
-                    .
-                    .
-                    .
+  et cetera
   """
   defp output_type_string_to_type(type_string) do
     type_string
@@ -24,8 +22,7 @@ defmodule NetSNMP.Parse do
   end
 
   defp get_snmpcmd_error(message) do
-    %{
-      "(noError) No Error"                                                                           => :snmp_err_noerror,
+    %{"(noError) No Error"                                                                           => :snmp_err_noerror,
       "(tooBig) Response message would have been too large."                                         => :snmp_err_toobig,
       "(noSuchName) There is no such variable name in this MIB."                                     => :snmp_err_nosuchname,
       "(badValue) The value given has the wrong type or length."                                     => :snmp_err_badvalue,
@@ -49,10 +46,10 @@ defmodule NetSNMP.Parse do
 
   defp parse_snmp_error(error_line) do
     case String.split(error_line) do
-      ["Timeout:"|_] ->
+      ["Timeout:" | _] ->
         {:error, :timeout}
 
-      ["Reason:"|reason_words] ->
+      ["Reason:" | reason_words] ->
         cause =
           reason_words
             |> Enum.join(" ")
@@ -60,13 +57,13 @@ defmodule NetSNMP.Parse do
 
         {:error, cause}
 
-      [_, "=", "No", "Such", "Object"|_] ->
+      [_, "=", "No", "Such", "Object" | _] ->
         {:error, :snmp_nosuchobject}
 
-      [_, "=", "No", "Such", "Instance"|_] ->
+      [_, "=", "No", "Such", "Instance" | _] ->
         {:error, :snmp_nosuchinstance}
 
-      [_, "=", "No", "more", "variables"|_] ->
+      [_, "=", "No", "more", "variables" | _] ->
         {:error, :snmp_endofmibview}
 
       _ ->
@@ -101,17 +98,20 @@ defmodule NetSNMP.Parse do
   Overcomplicated parsing process imbued with fear and uncertainty. Largely a
   product of having to treat unencapsulated, multi-line output.
 
-  * When not already processing an oid-type-value tuple, try parsing the next line
-  ** If the line was a known error, append it to the accumulator
-  ** If the line was an oid-type-value tuple, set it aside and process the next line
+  * If not already processing an oid-type-value tuple, try parsing the next line
+  ** If the line is a known error, append it to the accumulator
+  ** If the line is an oid-type-value tuple, set it aside; process the next line
   ** Otherwise, ignore the line
 
   * When already processing an oid-type-value tuple, try parsing the next line
   ** If the line was a known error, append it to the accumulator
-  ** If the line was an oid-type-value tuple, append the one we were already processing to the accumulator and process the next
-  ** Otherwise, assume the line is part of the value for the tuple we're already processing and append it to the current value
+  ** If the line was an oid-type-value tuple, append the one we were already
+     processing to the accumulator and process the next
+  ** Otherwise, assume the line is part of the value for the tuple we're
+     already processing and append it to the current value
 
-  * When we're out of lines, append the last object (if there is one) and return the accumulator
+  * When we're out of lines, append the last object (if there is one) and return
+    the accumulator
   """
   defp _parse_snmp_output([], {{}, acc}) do
     acc
@@ -121,7 +121,7 @@ defmodule NetSNMP.Parse do
 
     acc ++ [ok: object]
   end
-  defp _parse_snmp_output([line|rest], {{}, acc}) do
+  defp _parse_snmp_output([line | rest], {{}, acc}) do
     case parse_snmp_output_line(line) do
       {:error, _error} = result ->
         _parse_snmp_output rest, {{}, acc ++ [result]}
@@ -133,7 +133,7 @@ defmodule NetSNMP.Parse do
         _parse_snmp_output rest, {{}, acc}
     end
   end
-  defp _parse_snmp_output([line|rest], {{oid, type, value}, acc}) do
+  defp _parse_snmp_output([line | rest], {{oid, type, value}, acc}) do
     case parse_snmp_output_line(line) do
       {:error, _error} = result ->
         _parse_snmp_output rest, {{}, acc ++ [result]}
@@ -172,12 +172,14 @@ defmodule NetSNMP.Parse do
   end
 
   defp columns_and_values_to_data_model(columns, values) do
-    for pair <- Enum.zip(columns, values), into: %{}, do: pair
+    columns
+      |> Enum.zip(values)
+      |> Enum.into(%{})
   end
 
-  defp parse_column_headers(headers) do
+  defp parse_column_headers(headers, delim) do
     headers
-      |> String.split("||")
+      |> String.split(delim)
       |> Enum.map(fn header ->
         header
           |> String.downcase
@@ -186,21 +188,21 @@ defmodule NetSNMP.Parse do
   end
 
   @doc """
-  SNMP table: IP-FORWARD-MIB::ipCidrRouteTable
+      SNMP table: IP-FORWARD-MIB::ipCidrRouteTable
 
-  Dest||Mask||Tos||NextHop||IfIndex||Type||Proto||Age||Info||NextHopAS||Metric1||Metric2||Metric3||Metric4||Metric5||Status
-  192.0.2.0||255.255.255.252||0||0.0.0.0||2||3||2||170234||SNMPv2-SMI::zeroDotZero||0||0||-1||-1||-1||-1||1
+      Dest||Mask||Tos||NextHop||IfIndex||Type||Proto||Age||Info||NextHopAS||Metric1||Metric2||Metric3||Metric4||Metric5||Status
+      192.0.2.0||255.255.255.252||0||0.0.0.0||2||3||2||170234||SNMPv2-SMI::zeroDotZero||0||0||-1||-1||-1||-1||1
 
-	becomes
+  becomes
 
-	[%{age: "173609", dest: "192.0.2.0", ifindex: "2",
-		 info: "SNMPv2-SMI::zeroDotZero", mask: "255.255.255.252", metric1: "0",
-		 metric2: "-1", metric3: "-1", metric4: "-1", metric5: "-1",
-		 nexthop: "0.0.0.0", nexthopas: "0", proto: "2", status: "1", tos: "0",
-		 type: "3"}]
+      [%{age: "173609", dest: "192.0.2.0", ifindex: "2",
+         info: "SNMPv2-SMI::zeroDotZero", mask: "255.255.255.252", metric1: "0",
+         metric2: "-1", metric3: "-1", metric4: "-1", metric5: "-1",
+         nexthop: "0.0.0.0", nexthopas: "0", proto: "2", status: "1", tos: "0",
+         type: "3"}]
   """
-	@spec parse_snmp_table_output(String.t) :: [Map.t]
-  def parse_snmp_table_output(output) do
+  @spec parse_snmp_table_output(String.t) :: [Map.t]
+  def parse_snmp_table_output(output, field_delim \\ "||") do
     try do
       [headers | rows] =
         output
@@ -210,10 +212,10 @@ defmodule NetSNMP.Parse do
           |> Enum.filter(fn "" -> false; _ -> true end)
 
       rows
-        |> Stream.map(&String.split(&1, "||"))
+        |> Stream.map(&String.split(&1, field_delim))
         |> Enum.map(fn values ->
           headers
-            |> parse_column_headers
+            |> parse_column_headers(field_delim)
             |> columns_and_values_to_data_model(values)
         end)
 

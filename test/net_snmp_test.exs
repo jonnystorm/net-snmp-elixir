@@ -6,35 +6,6 @@
 defmodule NetSNMPTest do
   use ExUnit.Case, async: true
 
-  test "credential returns correct keyword list for SNMPv2c" do
-    assert NetSNMP.credential(:v2c, "ancommunity") ==
-      [version: "2c", community: "ancommunity"]
-  end
-  test "credential returns correct keyword list for SNMPv3, noAuthNoPriv" do
-    assert NetSNMP.credential(:v3, :no_auth_no_priv, "anname") ==
-      [version: "3", sec_level: "noAuthNoPriv", sec_name: "anname"]
-  end
-  test "credential returns correct keyword list for SNMPv3, authNoPriv" do
-    assert NetSNMP.credential(:v3, :auth_no_priv, "anname", :md5, "anpass") ==
-      [ version: "3",
-        sec_level: "authNoPriv",
-        sec_name: "anname",
-        auth_proto: "md5",
-        auth_pass: "anpass"
-      ]
-  end
-  test "credential returns correct keyword list for SNMPv3, authPriv" do
-    assert NetSNMP.credential(:v3, :auth_priv, "anname", :sha, "anpass", :des, "anpass2") ==
-      [ version: "3",
-        sec_level: "authPriv",
-        sec_name: "anname",
-        auth_proto: "sha",
-        auth_pass: "anpass",
-        priv_proto: "des",
-        priv_pass: "anpass2"
-      ]
-  end
-
   test "credential fails for invalid security level" do
     assert_raise FunctionClauseError, fn ->
       NetSNMP.credential(:v3, :blarg, "anname", :sha, "anpass", :des, "anpass2")
@@ -55,14 +26,14 @@ defmodule NetSNMPTest do
 
   test "credential_to_snmpcmd_args returns correct string" do
     test_creds =
-    [ version: "3",
-      sec_level: "authPriv",
-      sec_name: "anname",
-      auth_proto: "sha",
-      auth_pass: "anpass",
-      priv_proto: "aes",
-      priv_pass: "anpass2"
-    ]
+      [ version: "3",
+        sec_level: "authPriv",
+        sec_name: "anname",
+        auth_proto: "sha",
+        auth_pass: "anpass",
+        priv_proto: "aes",
+        priv_pass: "anpass2"
+      ]
 
     assert NetSNMP.credential_to_snmpcmd_args(test_creds) ==
       "-v3 -lauthPriv -u 'anname' -a sha -A 'anpass' -x aes -X 'anpass2'"
