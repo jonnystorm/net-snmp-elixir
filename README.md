@@ -4,6 +4,8 @@ net-snmp-elixir
 
 A thin layer of Elixir poured atop net-snmp utilities. To be used with [snmp-mib-elixir](https://github.com/jonnystorm/snmp-mib-elixir).
 
+See the [API documentation](https://jonnystorm.github.io/net-snmp-elixir).
+
 ### To use:
 
 ```
