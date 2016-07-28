@@ -63,7 +63,7 @@
 <p>A thin layer of Elixir poured atop net-snmp utilities. To be used with <a href="https://github.com/jonnystorm/snmp-mib-elixir">snmp-mib-elixir</a>.</p>
 <p>See the <a href="https://jonnystorm.github.io/net-snmp-elixir">API documentation</a>.</p>
 <h3>To use:</h3>
-<pre><code class="iex elixir">iex&gt; credential = NetSNMP.credential :v2c, &quot;public&quot;
+<pre><code class="elixir">iex&gt; credential = NetSNMP.credential :v2c, &quot;public&quot;
 [version: &quot;2c&quot;, community: &quot;public&quot;]
 
 iex&gt; agent = URI.parse &quot;snmp://192.0.2.2&quot;
@@ -103,7 +103,7 @@ iex&gt; NetSNMP.table ip_cidr_route_table_object, agent, credential
    mask: &quot;255.255.255.255&quot;, metric1: &quot;0&quot;, metric2: &quot;-1&quot;, metric3: &quot;-1&quot;,
    metric4: &quot;-1&quot;, metric5: &quot;-1&quot;, nexthop: &quot;0.0.0.0&quot;, nexthopas: &quot;0&quot;, proto: &quot;2&quot;,
    status: &quot;1&quot;, tos: &quot;0&quot;, type: &quot;3&quot;}]</code></pre>
-<p>For now, this assumes you (1) have net-snmp utilities installed and (2) snmpget, snmpset, etc. are in your $PATH.</p>
+<p>For now, this assumes you (1) have net-snmp utilities installed and (2) <code class="inline">snmpget</code>, <code class="inline">snmpset</code>, etc. are in your <code class="inline">$PATH</code>.</p>
 
       <footer class="footer">
         <p>
