@@ -8,7 +8,7 @@ See the [API documentation](https://jonnystorm.github.io/net-snmp-elixir).
 
 ### To use:
 
-```
+```elixir
 iex> credential = NetSNMP.credential :v2c, "public"
 [version: "2c", community: "public"]
 
@@ -51,5 +51,5 @@ iex> NetSNMP.table ip_cidr_route_table_object, agent, credential
    status: "1", tos: "0", type: "3"}]
 ```
 
-For now, this assumes you (1) have net-snmp utilities installed and (2) snmpget, snmpset, etc. are in your $PATH.
+For now, this assumes you (1) have net-snmp utilities installed and (2) `snmpget`, `snmpset`, etc. are in your `$PATH`.
 
