@@ -23,6 +23,7 @@ defmodule NetSNMP do
   @spec credential(:v1, String.t) :: Keyword.t
   @spec credential(:v2c, String.t) :: Keyword.t
 
+  def credential(version, community)
   def credential(:v1, community) do
     [ version: "1",
       community: community
@@ -44,6 +45,7 @@ defmodule NetSNMP do
   """
   @spec credential(:v3, :no_auth_no_priv, String.t) :: Keyword.t
 
+  def credential(version, sec_level, sec_name)
   def credential(:v3, :no_auth_no_priv, sec_name) do
     [ version: "3",
       sec_level: "noAuthNoPriv",
@@ -65,6 +67,7 @@ defmodule NetSNMP do
   """
   @spec credential(:v3, :auth_no_priv, String.t, :md5|:sha, String.t) :: Keyword.t
 
+  def credential(version, sec_level, sec_name, auth_proto, auth_pass)
   def credential(:v3, :auth_no_priv, sec_name, auth_proto, auth_pass)
       when auth_proto in [:md5, :sha]
   do
@@ -91,6 +94,7 @@ defmodule NetSNMP do
   """
   @spec credential(:v3, :auth_priv, String.t, :md5|:sha, String.t, :des|:aes, String.t) :: Keyword.t
 
+  def credential(version, sec_level, sec_name, auth_proto, auth_pass, priv_proto, priv_pass)
   def credential(:v3, :auth_priv, sec_name, auth_proto, auth_pass, priv_proto, priv_pass)
       when auth_proto in [:md5, :sha]
        and priv_proto in [:des, :aes]
