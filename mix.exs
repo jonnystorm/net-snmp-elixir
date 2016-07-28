@@ -5,7 +5,7 @@ defmodule NetSNMP.Mixfile do
     [ app: :net_snmp_ex,
       version: "0.0.6",
       name: "NetSNMP",
-      source_url: "https://github.com/jonnystorm/netaddr-elixir",
+      source_url: "https://github.com/jonnystorm/net-snmp-elixir",
       elixir: "~> 1.0",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
