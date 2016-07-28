@@ -93,7 +93,7 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#credential/2">credential(atom, community)</a>
+    <a href="#credential/2">credential(version, community)</a>
   </div>
   
     <div class="summary-synopsis"><p>Returns a keyword list containing the given SNMPv1/2c community</p>
@@ -102,7 +102,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#credential/3">credential(atom1, atom2, sec_name)</a>
+    <a href="#credential/3">credential(version, sec_level, sec_name)</a>
   </div>
   
     <div class="summary-synopsis"><p>Returns a keyword list containing the given SNMPv3 noAuthNoPriv credentials</p>
@@ -111,7 +111,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#credential/5">credential(atom1, atom2, sec_name, auth_proto, auth_pass)</a>
+    <a href="#credential/5">credential(version, sec_level, sec_name, auth_proto, auth_pass)</a>
   </div>
   
     <div class="summary-synopsis"><p>Returns a keyword list containing the given SNMPv3 authNoPriv credentials</p>
@@ -120,7 +120,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#credential/7">credential(atom1, atom2, sec_name, auth_proto, auth_pass, priv_proto, priv_pass)</a>
+    <a href="#credential/7">credential(version, sec_level, sec_name, auth_proto, auth_pass, priv_proto, priv_pass)</a>
   </div>
   
     <div class="summary-synopsis"><p>Returns a keyword list containing the given SNMPv3 authPriv credentials</p>
@@ -196,7 +196,7 @@ credentials</p>
     <a href="#credential/2" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">credential(atom, community)</span>
+    <span class="signature">credential(version, community)</span>
     
       <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L26" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
@@ -232,9 +232,9 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     <a href="#credential/3" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">credential(atom1, atom2, sec_name)</span>
+    <span class="signature">credential(version, sec_level, sec_name)</span>
     
-      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L47" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L48" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -263,9 +263,9 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     <a href="#credential/5" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">credential(atom1, atom2, sec_name, auth_proto, auth_pass)</span>
+    <span class="signature">credential(version, sec_level, sec_name, auth_proto, auth_pass)</span>
     
-      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L68" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L70" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -298,9 +298,9 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     <a href="#credential/7" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">credential(atom1, atom2, sec_name, auth_proto, auth_pass, priv_proto, priv_pass)</span>
+    <span class="signature">credential(version, sec_level, sec_name, auth_proto, auth_pass, priv_proto, priv_pass)</span>
     
-      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L94" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L97" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -336,7 +336,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">credential_to_snmpcmd_args(credential)</span>
     
-      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L135" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L139" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -354,7 +354,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">get(snmp_objects, uri, credential)</span>
     
-      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L191" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L195" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -373,7 +373,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">set(snmp_objects, uri, credential)</span>
     
-      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L203" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L207" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -392,7 +392,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">table(snmp_objects, uri, credential)</span>
     
-      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L215" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L219" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -411,7 +411,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">walk(snmp_objects, uri, credential)</span>
     
-      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L230" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/netaddr-elixir/blob/master/lib/net_snmp.ex#L234" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
