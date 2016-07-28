@@ -4,31 +4,70 @@
 # as published by Sam Hocevar. See the COPYING.WTFPL file for more details.
 
 defmodule NetSNMP do
+  @moduledoc """
+  A Net-SNMP library supporting SNMPv1/2c/3.
+  """
   alias NetSNMP.Parse
 
+  @doc """
+  Returns a keyword list containing the given SNMPv1/2c community.
+
+  ## Examples
+
+      iex> NetSNMP.credential :v1, "public"
+      [version: "1", community: "public"]
+      
+      iex> NetSNMP.credential :v2c, "public"
+      [version: "2c", community: "public"]
+  """
   @spec credential(:v1, String.t) :: Keyword.t
+  @spec credential(:v2c, String.t) :: Keyword.t
+
   def credential(:v1, community) do
     [ version: "1",
       community: community
     ]
   end
-  @spec credential(:v2c, String.t) :: Keyword.t
   def credential(:v2c, community) do
     [ version: "2c",
       community: community
     ]
   end
+
+  @doc """
+  Returns a keyword list containing the given SNMPv3 noAuthNoPriv credentials.
+
+  ## Examples
+
+      iex> NetSNMP.credential :v3, :no_auth_no_priv, "user"
+      [version: "3", sec_level: "noAuthNoPriv", sec_name: "user"]
+  """
   @spec credential(:v3, :no_auth_no_priv, String.t) :: Keyword.t
+
   def credential(:v3, :no_auth_no_priv, sec_name) do
     [ version: "3",
       sec_level: "noAuthNoPriv",
       sec_name: sec_name
     ]
   end
-  @spec credential(:v3, :auth_no_priv, String.t, :md5|:sha, String.t) :: Keyword.t
-  def credential(:v3, :auth_no_priv, sec_name, auth_proto, auth_pass)
-      when auth_proto in [:md5, :sha] do
 
+  @doc """
+  Returns a keyword list containing the given SNMPv3 authNoPriv credentials.
+
+  ## Examples
+
+      iex> NetSNMP.credential :v3, :auth_no_priv, "user", :sha, "authpass"
+      [ version: "3",
+        sec_level: "authNoPriv",
+        sec_name: "user",
+        auth_proto: "sha", auth_pass: "authpass"
+      ]
+  """
+  @spec credential(:v3, :auth_no_priv, String.t, :md5|:sha, String.t) :: Keyword.t
+
+  def credential(:v3, :auth_no_priv, sec_name, auth_proto, auth_pass)
+      when auth_proto in [:md5, :sha]
+  do
     [ version: "3",
       sec_level: "authNoPriv",
       sec_name: sec_name,
@@ -36,10 +75,26 @@ defmodule NetSNMP do
       auth_pass: auth_pass
     ]
   end
-  @spec credential(:v3, :auth_priv, String.t, :md5|:sha, String.t, :des|:aes, String.t) :: Keyword.t
-  def credential(:v3, :auth_priv, sec_name, auth_proto, auth_pass, priv_proto, priv_pass)
-      when auth_proto in [:md5, :sha] and priv_proto in [:des, :aes] do
 
+  @doc """
+  Returns a keyword list containing the given SNMPv3 authPriv credentials.
+
+  ## Examples
+
+      iex> NetSNMP.credential :v3, :auth_priv, "user", :sha, "authpass", :aes, "privpass"
+      [ version: "3",
+        sec_level: "authPriv",
+        sec_name: "user",
+        auth_proto: "sha", auth_pass: "authpass",
+        priv_proto: "aes", priv_pass: "privpass"
+      ]
+  """
+  @spec credential(:v3, :auth_priv, String.t, :md5|:sha, String.t, :des|:aes, String.t) :: Keyword.t
+
+  def credential(:v3, :auth_priv, sec_name, auth_proto, auth_pass, priv_proto, priv_pass)
+      when auth_proto in [:md5, :sha]
+       and priv_proto in [:des, :aes]
+  do
     [ version: "3",
       sec_level: "authPriv",
       sec_name: sec_name,
@@ -130,6 +185,9 @@ defmodule NetSNMP do
       |> :binary.list_to_bin
   end
 
+  @doc """
+  Send SNMPGET request to `uri` for given objects and credentials.
+  """
   def get(snmp_objects, uri, credential) when is_list snmp_objects do
     gen_snmpcmd(:get, snmp_objects, uri, credential)
       |> shell_cmd
@@ -139,6 +197,9 @@ defmodule NetSNMP do
     get [snmp_object], uri, credential
   end
 
+  @doc """
+  Send SNMPSET request to `uri` for given objects and credentials.
+  """
   def set(snmp_objects, uri, credential) when is_list snmp_objects do
     gen_snmpcmd(:set, snmp_objects, uri, credential)
       |> shell_cmd
@@ -148,6 +209,9 @@ defmodule NetSNMP do
     set [snmp_object], uri, credential
   end
 
+  @doc """
+  Perform SNMP table operations against `uri` for given objects and credentials.
+  """
   def table(snmp_objects, uri, credential) when is_list snmp_objects do
     snmp_objects
       |> Enum.map(&table(&1, uri, credential))
@@ -159,6 +223,10 @@ defmodule NetSNMP do
       |> Parse.parse_snmp_table_output
   end
 
+  @doc """
+  Send SNMPGETNEXT requests to `uri`, starting at given objects, with given
+  credentials.
+  """
   def walk(snmp_objects, uri, credential) when is_list snmp_objects do
     snmp_objects
       |> Enum.map(&walk(&1, uri, credential))

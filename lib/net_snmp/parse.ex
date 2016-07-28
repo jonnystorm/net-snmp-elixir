@@ -4,6 +4,8 @@
 # as published by Sam Hocevar. See the COPYING.WTFPL file for more details.
 
 defmodule NetSNMP.Parse do
+  @moduledoc false
+
   require Logger
 
   @doc """
@@ -98,20 +100,22 @@ defmodule NetSNMP.Parse do
   Overcomplicated parsing process imbued with fear and uncertainty. Largely a
   product of having to treat unencapsulated, multi-line output.
 
-  * If not already processing an oid-type-value tuple, try parsing the next line
-  ** If the line is a known error, append it to the accumulator
-  ** If the line is an oid-type-value tuple, set it aside; process the next line
-  ** Otherwise, ignore the line
+  1. If not already processing an oid-type-value tuple, try parsing the next
+     line
+      * If the line is a known error, append it to the accumulator
+      * If the line is an oid-type-value tuple, set it aside; process the next
+        line
+      * Otherwise, ignore the line
 
-  * When already processing an oid-type-value tuple, try parsing the next line
-  ** If the line was a known error, append it to the accumulator
-  ** If the line was an oid-type-value tuple, append the one we were already
-     processing to the accumulator and process the next
-  ** Otherwise, assume the line is part of the value for the tuple we're
-     already processing and append it to the current value
+  2. When already processing an oid-type-value tuple, try parsing the next line
+      * If the line was a known error, append it to the accumulator
+      * If the line was an oid-type-value tuple, append the one we were already
+        processing to the accumulator and process the next
+      * Otherwise, assume the line is part of the value for the tuple we're
+        already processing and append it to the current value
 
-  * When we're out of lines, append the last object (if there is one) and return
-    the accumulator
+  3. When we're out of lines, append the last object (if there is one) and
+     return the accumulator
   """
   defp _parse_snmp_output([], {{}, acc}) do
     acc

@@ -2,17 +2,20 @@ defmodule NetSNMP.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :net_snmp_ex,
-     version: "0.0.5",
-     elixir: "~> 1.0",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps]
+    [ app: :net_snmp_ex,
+      version: "0.0.6",
+      name: "NetSNMP",
+      source_url: "https://github.com/jonnystorm/netaddr-elixir",
+      elixir: "~> 1.0",
+      build_embedded: Mix.env == :prod,
+      start_permanent: Mix.env == :prod,
+      deps: deps,
+      docs: [extras: ["README.md"]]
+    ]
   end
 
   defp get_application(:prod) do
-    [
-      applications: [
+    [ applications: [
         :snmp_mib_ex
       ]
     ]
@@ -26,7 +29,8 @@ defmodule NetSNMP.Mixfile do
   end
 
   defp deps do
-    [ {:snmp_mib_ex, git: "https://github.com/jonnystorm/snmp-mib-elixir"}
+    [ {:snmp_mib_ex, git: "https://github.com/jonnystorm/snmp-mib-elixir"},
+      {:ex_doc, "~> 0.13", only: :dev}
     ]
   end
 end

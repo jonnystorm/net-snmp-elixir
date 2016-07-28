@@ -3,5 +3,5 @@
 while true; do
   inotifywait --exclude \..*\.sw. -re modify .
   clear
-  mix amrita
+  mix test
 done

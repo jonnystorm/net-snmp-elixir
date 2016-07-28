@@ -6,6 +6,8 @@
 defmodule NetSNMPTest do
   use ExUnit.Case, async: true
 
+  doctest NetSNMP
+
   test "credential fails for invalid security level" do
     assert_raise FunctionClauseError, fn ->
       NetSNMP.credential(:v3, :blarg, "anname", :sha, "anpass", :des, "anpass2")
