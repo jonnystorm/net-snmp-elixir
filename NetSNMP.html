@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.13.0">
-    <title>NetSNMP – NetSNMP v0.0.8</title>
+    <title>NetSNMP – NetSNMP v0.0.9</title>
     <link rel="stylesheet" href="dist/app-9c1e3d5aa2.css" />
     
     <script src="dist/sidebar_items.js"></script>
@@ -26,7 +26,7 @@
         NetSNMP
       </h1>
       <h2 class="sidebar-projectVersion">
-        v0.0.8
+        v0.0.9
       </h2>
     </div>
     
@@ -59,7 +59,7 @@
 
 
       <h1>
-        <small class="visible-xs">NetSNMP v0.0.8</small>
+        <small class="visible-xs">NetSNMP v0.0.9</small>
         NetSNMP
         
         
@@ -135,7 +135,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#get/3">get(snmp_objects, uri, credential)</a>
+    <a href="#get/4">get(snmp_object, uri, credential, context \\ &quot;&quot;)</a>
   </div>
   
     <div class="summary-synopsis"><p>Send SNMPGET request to <code class="inline">uri</code> for given objects and credentials</p>
@@ -144,7 +144,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#set/3">set(snmp_objects, uri, credential)</a>
+    <a href="#set/4">set(snmp_object, uri, credential, context \\ &quot;&quot;)</a>
   </div>
   
     <div class="summary-synopsis"><p>Send SNMPSET request to <code class="inline">uri</code> for given objects and credentials</p>
@@ -153,7 +153,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#table/3">table(snmp_objects, uri, credential)</a>
+    <a href="#table/4">table(snmp_object, uri, credential, context \\ &quot;&quot;)</a>
   </div>
   
     <div class="summary-synopsis"><p>Perform SNMP table operations against <code class="inline">uri</code> for given objects and credentials</p>
@@ -162,7 +162,7 @@
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#walk/3">walk(snmp_objects, uri, credential)</a>
+    <a href="#walk/4">walk(snmp_object, uri, credential, context \\ &quot;&quot;)</a>
   </div>
   
     <div class="summary-synopsis"><p>Send SNMPGETNEXT requests to <code class="inline">uri</code>, starting at given objects, with given
@@ -347,12 +347,12 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     
   </section>
 </div>
-<div class="detail" id="get/3">
+<div class="detail" id="get/4">
   <div class="detail-header">
-    <a href="#get/3" class="detail-link" title="Link to this function">
+    <a href="#get/4" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">get(snmp_objects, uri, credential)</span>
+    <span class="signature">get(snmp_object, uri, credential, context \\ &quot;&quot;)</span>
     
       <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L195" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
@@ -366,14 +366,14 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
 
   </section>
 </div>
-<div class="detail" id="set/3">
+<div class="detail" id="set/4">
   <div class="detail-header">
-    <a href="#set/3" class="detail-link" title="Link to this function">
+    <a href="#set/4" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">set(snmp_objects, uri, credential)</span>
+    <span class="signature">set(snmp_object, uri, credential, context \\ &quot;&quot;)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L207" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L208" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -385,14 +385,14 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
 
   </section>
 </div>
-<div class="detail" id="table/3">
+<div class="detail" id="table/4">
   <div class="detail-header">
-    <a href="#table/3" class="detail-link" title="Link to this function">
+    <a href="#table/4" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">table(snmp_objects, uri, credential)</span>
+    <span class="signature">table(snmp_object, uri, credential, context \\ &quot;&quot;)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L219" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L221" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -404,14 +404,14 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
 
   </section>
 </div>
-<div class="detail" id="walk/3">
+<div class="detail" id="walk/4">
   <div class="detail-header">
-    <a href="#walk/3" class="detail-link" title="Link to this function">
+    <a href="#walk/4" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">walk(snmp_objects, uri, credential)</span>
+    <span class="signature">walk(snmp_object, uri, credential, context \\ &quot;&quot;)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L234" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L237" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
