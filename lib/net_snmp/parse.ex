@@ -224,7 +224,7 @@ defmodule NetSNMP.Parse do
 
     rescue
       _ ->
-        parse_snmp_error output
+        [parse_snmp_error output]
     end
   end
 end
