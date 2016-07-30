@@ -152,30 +152,30 @@ defmodule NetSNMP do
     end
   end
 
-  defp gen_snmpcmd(:get, snmp_objects, uri, credential) do
-    [ "snmpget -Le -mALL -OUnet",
+  defp gen_snmpcmd(:get, snmp_objects, uri, credential, context) do
+    [ "snmpget -Le -mALL -OUnet -n '#{context}'",
       credential_to_snmpcmd_args(credential),
       uri_to_agent_string(uri) | objects_to_oids(snmp_objects)
 
     ] |> Enum.join(" ")
   end
-  defp gen_snmpcmd(:set, snmp_objects, uri, credential) do
-    [ "snmpset -Le -mALL -OUnet",
+  defp gen_snmpcmd(:set, snmp_objects, uri, credential, context) do
+    [ "snmpset -Le -mALL -OUnet -n '#{context}'",
       credential_to_snmpcmd_args(credential),
       uri_to_agent_string(uri) | Enum.map(snmp_objects, &to_string(&1))
 
     ] |> Enum.join(" ")
   end
-  defp gen_snmpcmd(:walk, snmp_object, uri, credential) do
-    [ "snmpwalk -Le -mALL -OUnet",
+  defp gen_snmpcmd(:walk, snmp_object, uri, credential, context) do
+    [ "snmpwalk -Le -mALL -OUnet -n '#{context}'",
       credential_to_snmpcmd_args(credential),
       uri_to_agent_string(uri) | objects_to_oids([snmp_object])
 
     ] |> Enum.join(" ")
   end
 
-  defp gen_snmpcmd(:table, snmp_object, uri, credential, field_delim \\ "||") do
-    [ "snmptable -Le -mALL -Clbf '#{field_delim}' -OXUet",
+  defp gen_snmpcmd(:table, snmp_object, uri, credential, context) do
+    [ "snmptable -Le -mALL -Clbf '||' -OXUet -n '#{context}'",
       credential_to_snmpcmd_args(credential),
       uri_to_agent_string(uri) | objects_to_oids([snmp_object])
 
@@ -192,37 +192,40 @@ defmodule NetSNMP do
   @doc """
   Send SNMPGET request to `uri` for given objects and credentials.
   """
-  def get(snmp_objects, uri, credential) when is_list snmp_objects do
-    gen_snmpcmd(:get, snmp_objects, uri, credential)
+  def get(snmp_object, uri, credential, context \\ "")
+  def get(snmp_objects, uri, credential, context) when is_list snmp_objects do
+    gen_snmpcmd(:get, snmp_objects, uri, credential, context)
       |> shell_cmd
       |> Parse.parse_snmp_output
   end
-  def get(snmp_object, uri, credential) do
-    get [snmp_object], uri, credential
+  def get(snmp_object, uri, credential, context) do
+    get [snmp_object], uri, credential, context
   end
 
   @doc """
   Send SNMPSET request to `uri` for given objects and credentials.
   """
-  def set(snmp_objects, uri, credential) when is_list snmp_objects do
-    gen_snmpcmd(:set, snmp_objects, uri, credential)
+  def set(snmp_object, uri, credential, context \\ "")
+  def set(snmp_objects, uri, credential, context) when is_list snmp_objects do
+    gen_snmpcmd(:set, snmp_objects, uri, credential, context)
       |> shell_cmd
       |> Parse.parse_snmp_output
   end
-  def set(snmp_object, uri, credential) do
-    set [snmp_object], uri, credential
+  def set(snmp_object, uri, credential, context) do
+    set [snmp_object], uri, credential, context
   end
 
   @doc """
   Perform SNMP table operations against `uri` for given objects and credentials.
   """
-  def table(snmp_objects, uri, credential) when is_list snmp_objects do
+  def table(snmp_object, uri, credential, context \\ "")
+  def table(snmp_objects, uri, credential, context) when is_list snmp_objects do
     snmp_objects
-      |> Enum.map(&table(&1, uri, credential))
+      |> Enum.map(&table(&1, uri, credential, context))
       |> List.flatten
   end
-  def table(snmp_object, uri, credential) when not is_list snmp_object do
-    gen_snmpcmd(:table, snmp_object, uri, credential)
+  def table(snmp_object, uri, credential, context) do
+    gen_snmpcmd(:table, snmp_object, uri, credential, context)
       |> shell_cmd
       |> Parse.parse_snmp_table_output
   end
@@ -231,13 +234,14 @@ defmodule NetSNMP do
   Send SNMPGETNEXT requests to `uri`, starting at given objects, with given
   credentials.
   """
-  def walk(snmp_objects, uri, credential) when is_list snmp_objects do
+  def walk(snmp_object, uri, credential, context \\ "")
+  def walk(snmp_objects, uri, credential, context) when is_list snmp_objects do
     snmp_objects
-      |> Enum.map(&walk(&1, uri, credential))
+      |> Enum.map(&walk(&1, uri, credential, context))
       |> List.flatten
   end
-  def walk(snmp_object, uri, credential) do
-    gen_snmpcmd(:walk, snmp_object, uri, credential)
+  def walk(snmp_object, uri, credential, context) do
+    gen_snmpcmd(:walk, snmp_object, uri, credential, context)
       |> shell_cmd
       |> Parse.parse_snmp_output
   end
