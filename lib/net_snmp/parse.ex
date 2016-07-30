@@ -8,13 +8,11 @@ defmodule NetSNMP.Parse do
 
   require Logger
 
-  @doc """
-  "STRING:"          -> :string
-  "Counter32:"       -> :counter32
-  "Network Address:" -> :network_address
-  "Hex-STRING:"      -> :hex_string
-  et cetera
-  """
+  # "STRING:"          -> :string
+  # "Counter32:"       -> :counter32
+  # "Network Address:" -> :network_address
+  # "Hex-STRING:"      -> :hex_string
+  # et cetera
   defp output_type_string_to_type(type_string) do
     type_string
       |> String.rstrip(?:)
@@ -68,26 +66,37 @@ defmodule NetSNMP.Parse do
       [_, "=", "No", "more", "variables" | _] ->
         {:error, :snmp_endofmibview}
 
+      ["Was", "that", "a", "table?" | _] ->
+        {:error, :was_that_a_table?}
+
       _ ->
-        nil
+        raise "Unknown error occurred: '#{error_line}'"
     end
   end
 
   defp parse_snmp_output_line(line) do
     try do
-      [oid, "=", type_string_and_value] = String.split line, " ", parts: 3
+      case String.split line, " ", parts: 3 do
+        [oid, "=", type_string_and_value] ->
+          case String.split(type_string_and_value, ": ", parts: 2) do
+            [type_string, value] ->
+              type = output_type_string_to_type type_string
 
-      case String.split(type_string_and_value, ": ", parts: 2) do
-        [type_string, value] ->
-          type = output_type_string_to_type type_string
+              {oid, type, value}
 
-          {oid, type, value}
+            [value] ->
+              # Displaying timeticks as a number strips them of their type,
+              #   requiring we restore the correct type. To the best of my
+              #   knowledge, this is unique to timeticks.
+              # Regardless, `value` could still be an error, and we need to make
+              #   sure it parses to an integer.
+              _ = String.to_integer value
 
-        [value] ->
-          # Displaying timeticks as a number strips them of their type,
-          #   requiring we restore the correct type. To the best of my
-          #   knowledge, this is unique to timeticks
-          {oid, :timeticks, value}
+              {oid, :timeticks, value}
+          end
+
+        _ ->
+          nil
       end
 
     rescue
@@ -96,78 +105,66 @@ defmodule NetSNMP.Parse do
     end
   end
 
-  @doc """
-  Overcomplicated parsing process imbued with fear and uncertainty. Largely a
-  product of having to treat unencapsulated, multi-line output.
+  defp otv_tuple_to_object_kw_list({}), do: []
+  defp otv_tuple_to_object_kw_list({oid, type, value}) do
+    [ok: SNMPMIB.object(oid, type, value)]
+  end
 
-  1. If not already processing an oid-type-value tuple, try parsing the next
-     line
-      * If the line is a known error, append it to the accumulator
-      * If the line is an oid-type-value tuple, set it aside; process the next
-        line
-      * Otherwise, ignore the line
+  defp append_line_to_otv_tuple({}, _line), do: {}
+  defp append_line_to_otv_tuple({oid, type, value}, line) do
+    {oid, type, "#{value}\n#{line}"}
+  end
 
-  2. When already processing an oid-type-value tuple, try parsing the next line
-      * If the line was a known error, append it to the accumulator
-      * If the line was an oid-type-value tuple, append the one we were already
-        processing to the accumulator and process the next
-      * Otherwise, assume the line is part of the value for the tuple we're
-        already processing and append it to the current value
+  # Overcomplicated parsing process imbued with fear and uncertainty. Largely a
+  # product of having to treat unencapsulated, multi-line output.
 
-  3. When we're out of lines, append the last object (if there is one) and
-     return the accumulator
-  """
+  # 1. Try parsing the next line
+  #     * If the line is a known error, append it to the accumulator
+  #     * If the line is an oid-type-value tuple, append the oid-type-value tuple
+  #       in progress (if there is one) to the accumulator and begin work on the
+  #       new oid-type-value tuple
+  #     * Otherwise, assume the line is part of the oid-type-value tuple in
+  #       progress (if there is one), and append the line to the current value
+
+  # 2. When we run out of lines, append the last oid-type-value tuple (if there
+  #    is one) and return the accumulator
+  #
   defp _parse_snmp_output([], {{}, acc}) do
     acc
   end
-  defp _parse_snmp_output([], {{oid, type, value}, acc}) do
-    object = SNMPMIB.object oid, type, value
-
-    acc ++ [ok: object]
+  defp _parse_snmp_output([], {otv_tuple, acc}) do
+    acc ++ otv_tuple_to_object_kw_list(otv_tuple)
   end
-  defp _parse_snmp_output([line | rest], {{}, acc}) do
+  defp _parse_snmp_output([line | rest], {otv_tuple, acc}) do
     case parse_snmp_output_line(line) do
       {:error, _error} = result ->
         _parse_snmp_output rest, {{}, acc ++ [result]}
 
       {_oid, _type, _value} = result ->
-        _parse_snmp_output rest, {result, acc}
+        kw_list = otv_tuple_to_object_kw_list otv_tuple
+
+        _parse_snmp_output rest, {result, acc ++ kw_list}
 
       nil ->
-        _parse_snmp_output rest, {{}, acc}
-    end
-  end
-  defp _parse_snmp_output([line | rest], {{oid, type, value}, acc}) do
-    case parse_snmp_output_line(line) do
-      {:error, _error} = result ->
-        _parse_snmp_output rest, {{}, acc ++ [result]}
+        next_otv_tuple = append_line_to_otv_tuple otv_tuple, line
 
-      {_oid, _type, _value} = result ->
-        object = SNMPMIB.object oid, type, value
-
-        _parse_snmp_output rest, {result, acc ++ [ok: object]}
-
-      nil ->
-        new_value = "#{value}\n#{line}"
-
-        _parse_snmp_output rest, {{oid, type, new_value}, acc}
+        _parse_snmp_output rest, {next_otv_tuple, acc}
     end
   end
 
-  @doc """
-  Output may take any of the following forms and more:
-
-  .1.3.6.1.2.1.1.1.0 = STRING: Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(25d), RELEASE SOFTWARE (fc1)
-  Technical Support: http://www.cisco.com/techsupport
-  Copyright (c) 1986-2010 by Cisco Systems, Inc.
-  Compiled Wed 18-Aug-10 07:55 by prod_rel_team
-  .1.3.6.1.2.1.1.2.0 = OID: .1.3.6.1.4.1.9.1.122
-  .1.3.6.1.2.1.1.7.0 = INTEGER: 78
-  .1.3.6.1.2.1.1.8.0 = 0
-  """
+  # Output may take any of the following forms and more:
+  #
+  # .1.3.6.1.2.1.1.1.0 = STRING: Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(25d), RELEASE SOFTWARE (fc1)
+  # Technical Support: http://www.cisco.com/techsupport
+  # Copyright (c) 1986-2010 by Cisco Systems, Inc.
+  # Compiled Wed 18-Aug-10 07:55 by prod_rel_team
+  # .1.3.6.1.2.1.1.2.0 = OID: .1.3.6.1.4.1.9.1.122
+  # .1.3.6.1.2.1.1.7.0 = INTEGER: 78
+  # .1.3.6.1.2.1.1.8.0 = 0
+  #
   @spec parse_snmp_output(String.t) :: Keyword.t
   def parse_snmp_output(output) do
-    Logger.debug "Output is '#{output}'"
+    :ok = Logger.debug "Output is '#{output}'"
 
     output
       |> String.strip
@@ -207,6 +204,8 @@ defmodule NetSNMP.Parse do
   """
   @spec parse_snmp_table_output(String.t) :: [Map.t]
   def parse_snmp_table_output(output, field_delim \\ "||") do
+    :ok = Logger.debug "Output is '#{output}'"
+
     try do
       [headers | rows] =
         output
