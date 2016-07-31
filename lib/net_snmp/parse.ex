@@ -70,7 +70,7 @@ defmodule NetSNMP.Parse do
         {:error, :was_that_a_table?}
 
       _ ->
-        raise "Unknown error occurred: '#{error_line}'"
+        nil
     end
   end
 
@@ -96,7 +96,7 @@ defmodule NetSNMP.Parse do
           end
 
         _ ->
-          nil
+          parse_snmp_error line
       end
 
     rescue
