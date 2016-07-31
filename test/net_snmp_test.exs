@@ -26,21 +26,6 @@ defmodule NetSNMPTest do
     end
   end
 
-  test "credential_to_snmpcmd_args returns correct string" do
-    test_creds =
-      [ version: "3",
-        sec_level: "authPriv",
-        sec_name: "anname",
-        auth_proto: "sha",
-        auth_pass: "anpass",
-        priv_proto: "aes",
-        priv_pass: "anpass2"
-      ]
-
-    assert NetSNMP.credential_to_snmpcmd_args(test_creds) ==
-      "-v3 -lauthPriv -u 'anname' -a sha -A 'anpass' -x aes -X 'anpass2'"
-  end
-
   test "parses snmpget/walk output" do
     output = "
 .1.3.6.1.2.1.1.1.0 = STRING: Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(25d), RELEASE SOFTWARE (fc1)
