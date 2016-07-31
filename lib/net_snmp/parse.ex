@@ -317,7 +317,13 @@ defmodule NetSNMP.Parse do
 
     rescue
       _ ->
-        [parse_snmp_error output]
+        case String.split output do
+          [_, "No", "entries"] ->
+            []
+
+          _ ->
+            [parse_snmp_error output]
+        end
     end
   end
 end
