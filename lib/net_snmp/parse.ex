@@ -153,7 +153,7 @@ defmodule NetSNMP.Parse do
         {:error, :was_that_a_table?}
 
       [program | reason_words]
-          when program in ["snmpget", "snmpset", "snmpwalk", "snmptable"]
+          when program in ["snmpget:", "snmpset:", "snmpwalk:", "snmptable:"]
       ->
         reason =
           reason_words
