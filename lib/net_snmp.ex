@@ -225,7 +225,7 @@ defmodule NetSNMP do
   end
 
   defp gen_snmpcmd(:table, snmp_object, uri, credential, context) do
-    [ "snmptable -Le -mALL -Clbf '||' -OXUet -n '#{context}'",
+    [ "snmptable -Le -mALL -Clibf '||' -OXUet -n '#{context}'",
       credential_to_snmpcmd_args(credential),
       uri_to_agent_string(uri) | objects_to_oids([snmp_object])
 
@@ -238,6 +238,10 @@ defmodule NetSNMP do
       |> :os.cmd
       |> :binary.list_to_bin
   end
+
+  # TODO: When URI.parse receives a bare IP, it puts this in :path rather than
+  #       :host. Since we rely on :host, we shouldn't accept a %{host: nil}.
+  #       Since the API is showing cracks (SNMPMIB), queue this up for later.
 
   @doc """
   Send SNMPGET request to `uri` for given objects and credentials.
