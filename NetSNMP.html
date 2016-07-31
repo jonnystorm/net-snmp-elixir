@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.13.0">
-    <title>NetSNMP – NetSNMP v0.0.10</title>
+    <title>NetSNMP – NetSNMP v0.0.11</title>
     <link rel="stylesheet" href="dist/app-9c1e3d5aa2.css" />
     
     <script src="dist/sidebar_items.js"></script>
@@ -26,7 +26,7 @@
         NetSNMP
       </h1>
       <h2 class="sidebar-projectVersion">
-        v0.0.10
+        v0.0.11
       </h2>
     </div>
     
@@ -59,7 +59,7 @@
 
 
       <h1>
-        <small class="visible-xs">NetSNMP v0.0.10</small>
+        <small class="visible-xs">NetSNMP v0.0.11</small>
         NetSNMP
         
         
@@ -93,6 +93,15 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
+    <a href="#credential/1">credential(args)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns a keyword list containing the given SNMPv1/2c/3 credentials</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
     <a href="#credential/2">credential(version, community)</a>
   </div>
   
@@ -125,12 +134,6 @@
   
     <div class="summary-synopsis"><p>Returns a keyword list containing the given SNMPv3 authPriv credentials</p>
 </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#credential_to_snmpcmd_args/1">credential_to_snmpcmd_args(credential)</a>
-  </div>
   
 </div>
 <div class="summary-row">
@@ -191,14 +194,66 @@ credentials</p>
             </a>
             Functions
           </h1>
-          <div class="detail" id="credential/2">
+          <div class="detail" id="credential/1">
+  <div class="detail-header">
+    <a href="#credential/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">credential(args)</span>
+    
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L42" class="view-source" rel="help" title="View Source">
+       <i class="icon-code"></i>
+     </a>
+    
+    
+  </div>
+  
+    <div class="specs">
+      <h4 class="specs-title">Specs</h4>
+      <div class="specs-list">
+        
+          <pre><code class="elixir">credential(list) :: <a href="http://elixir-lang.org/docs/stable/elixir/Keyword.html#t:t/0">Keyword.t</a></code></pre>
+        
+      </div>
+    </div>
+  
+  <section class="docstring">
+    <p>Returns a keyword list containing the given SNMPv1/2c/3 credentials.</p>
+<h2>Examples</h2>
+<pre><code class="iex elixir">iex&gt; NetSNMP.credential [:v1, &quot;public&quot;]
+[version: &quot;1&quot;, community: &quot;public&quot;]
+
+iex&gt; NetSNMP.credential [:v2c, &quot;public&quot;]
+[version: &quot;2c&quot;, community: &quot;public&quot;]
+
+iex&gt; NetSNMP.credential [:v3, :no_auth_no_priv, &quot;user&quot;]
+[version: &quot;3&quot;, sec_level: &quot;noAuthNoPriv&quot;, sec_name: &quot;user&quot;]
+
+iex&gt; NetSNMP.credential [:v3, :auth_no_priv, &quot;user&quot;, :sha, &quot;authpass&quot;]
+[ version: &quot;3&quot;,
+  sec_level: &quot;authNoPriv&quot;,
+  sec_name: &quot;user&quot;,
+  auth_proto: &quot;sha&quot;, auth_pass: &quot;authpass&quot;
+]
+
+iex&gt; NetSNMP.credential [:v3, :auth_priv, &quot;user&quot;, :sha, &quot;authpass&quot;, :aes, &quot;privpass&quot;]
+[ version: &quot;3&quot;,
+  sec_level: &quot;authPriv&quot;,
+  sec_name: &quot;user&quot;,
+  auth_proto: &quot;sha&quot;, auth_pass: &quot;authpass&quot;,
+  priv_proto: &quot;aes&quot;, priv_pass: &quot;privpass&quot;
+]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="credential/2">
   <div class="detail-header">
     <a href="#credential/2" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
     <span class="signature">credential(version, community)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L26" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L75" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -234,7 +289,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">credential(version, sec_level, sec_name)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L48" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L97" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -265,7 +320,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">credential(version, sec_level, sec_name, auth_proto, auth_pass)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L70" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L119" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -300,7 +355,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">credential(version, sec_level, sec_name, auth_proto, auth_pass, priv_proto, priv_pass)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L97" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L146" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -329,24 +384,6 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
 
   </section>
 </div>
-<div class="detail" id="credential_to_snmpcmd_args/1">
-  <div class="detail-header">
-    <a href="#credential_to_snmpcmd_args/1" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">credential_to_snmpcmd_args(credential)</span>
-    
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L139" class="view-source" rel="help" title="View Source">
-       <i class="icon-code"></i>
-     </a>
-    
-    
-  </div>
-  
-  <section class="docstring">
-    
-  </section>
-</div>
 <div class="detail" id="get/4">
   <div class="detail-header">
     <a href="#get/4" class="detail-link" title="Link to this function">
@@ -354,7 +391,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">get(snmp_object, uri, credential, context \\ &quot;&quot;)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L195" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L245" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -373,7 +410,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">set(snmp_object, uri, credential, context \\ &quot;&quot;)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L208" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L258" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -392,7 +429,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">table(snmp_object, uri, credential, context \\ &quot;&quot;)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L221" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L271" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
@@ -411,7 +448,7 @@ iex&gt; NetSNMP.credential :v2c, &quot;public&quot;
     </a>
     <span class="signature">walk(snmp_object, uri, credential, context \\ &quot;&quot;)</span>
     
-      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L237" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/jonnystorm/net-snmp-elixir/blob/master/lib/net_snmp.ex#L287" class="view-source" rel="help" title="View Source">
        <i class="icon-code"></i>
      </a>
     
