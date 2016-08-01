@@ -3,7 +3,7 @@ defmodule NetSNMP.Mixfile do
 
   def project do
     [ app: :net_snmp_ex,
-      version: "0.0.15",
+      version: "0.0.16",
       name: "NetSNMP",
       source_url: "https://github.com/jonnystorm/net-snmp-elixir",
       elixir: "~> 1.0",
@@ -14,14 +14,19 @@ defmodule NetSNMP.Mixfile do
     ]
   end
 
-  defp get_application(:prod) do
-    [ applications: [
-        :snmp_mib_ex
-      ]
+  defp get_env(_) do
+    [ field_delimiter: "||",
+      max_repetitions: 10
     ]
   end
+
   defp get_application(_) do
-    [applications: [:logger]]
+    [ applications: [
+        :logger,
+        :snmp_mib_ex
+      ],
+      env: get_env(Mix.env)
+    ]
   end
 
   def application do

@@ -202,6 +202,14 @@ defmodule NetSNMP do
     end
   end
 
+  defp get_field_delimiter do
+    Application.get_env :net_snmp_ex, :field_delimiter
+  end
+
+  defp get_max_repetitions do
+    Application.get_env :net_snmp_ex, :max_repetitions
+  end
+
   defp gen_snmpcmd(:get, snmp_objects, uri, credential, context) do
     [ "snmpget -Le -mALL -OUnet -n '#{context}'",
       credential_to_snmpcmd_args(credential),
@@ -223,9 +231,11 @@ defmodule NetSNMP do
 
     ] |> Enum.join(" ")
   end
-
   defp gen_snmpcmd(:table, snmp_object, uri, credential, context) do
-    [ "snmptable -Le -mALL -Clibf '||' -OXUet -n '#{context}'",
+    max_reps = get_max_repetitions
+    delim = get_field_delimiter
+
+    [ "snmptable -Le -mALL -Cr #{max_reps} -Clibf '#{delim}' -OXUet -n '#{context}'",
       credential_to_snmpcmd_args(credential),
       uri_to_agent_string(uri) | objects_to_oids([snmp_object])
 
