@@ -15,7 +15,7 @@ defmodule NetSNMP.Parse do
   # et cetera
   defp output_type_string_to_type(type_string) do
     type_string
-      |> String.rstrip(?:)
+      |> String.replace(~r/:$/, "")
       |> String.replace(["-", " "], "_")
       |> String.downcase
       |> String.to_atom
@@ -260,7 +260,8 @@ defmodule NetSNMP.Parse do
     :ok = Logger.debug "Output is '#{output}'"
 
     output
-      |> String.strip
+      |> String.replace(~r/^\s*/, "")
+      |> String.replace(~r/\s*$/, "")
       |> String.split("\n")
       |> _parse_snmp_output({{}, []})
   end
@@ -302,7 +303,8 @@ defmodule NetSNMP.Parse do
     try do
       [headers | rows] =
         output
-          |> String.strip
+          |> String.replace(~r/^\s*/, "")
+          |> String.replace(~r/\s*$/, "")
           |> String.split("\n")
           |> Enum.drop(1)
           |> Enum.filter(fn "" -> false; _ -> true end)
