@@ -245,6 +245,12 @@ defmodule NetSNMP.Parse do
     end
   end
 
+  defp debug_inline(output, message_fun) do
+    :ok = Logger.debug message_fun.(output)
+
+    output
+  end
+
   # Output may take any of the following forms and more:
   #
   # .1.3.6.1.2.1.1.1.0 = STRING: Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(25d), RELEASE SOFTWARE (fc1)
@@ -257,11 +263,10 @@ defmodule NetSNMP.Parse do
   #
   @spec parse_snmp_output(String.t) :: Keyword.t
   def parse_snmp_output(output) do
-    :ok = Logger.debug "Output is '#{output}'"
-
     output
       |> String.replace(~r/^\s*/, "")
       |> String.replace(~r/\s*$/, "")
+      |> debug_inline(&("Output is: '#{&1}'"))
       |> String.split("\n")
       |> _parse_snmp_output({{}, []})
   end

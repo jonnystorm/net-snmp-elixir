@@ -220,7 +220,7 @@ defmodule NetSNMP do
   defp gen_snmpcmd(:set, snmp_objects, uri, credential, context) do
     [ "snmpset -Le -mALL -OUnet -n '#{context}'",
       credential_to_snmpcmd_args(credential),
-      uri_to_agent_string(uri) | Enum.map(snmp_objects, &to_string(&1))
+      uri_to_agent_string(uri) | Enum.map(snmp_objects, &to_string/1)
 
     ] |> Enum.join(" ")
   end
