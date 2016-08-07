@@ -163,6 +163,10 @@ defmodule NetSNMP.Parse do
         {:error, reason}
 
       _ ->
+        error = Enum.join error_words, " "
+
+        :ok = Logger.warn "Received unknown error: '#{error}'"
+
         nil
     end
   end
