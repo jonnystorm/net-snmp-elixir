@@ -84,7 +84,7 @@ defmodule NetSNMP.Parse do
       "Unknown engine ID"                                              => :snmperr_unknown_eng_id,
       "Unknown user name"                                              => :snmperr_unknown_user_name,
       "Unsupported security level"                                     => :snmperr_unsupported_sec_level,
-      "Authentication failure (incorrect password community or key)"   => :snmperr_authentication_failure,
+      "Authentication failure (incorrect password, community or key)"  => :snmperr_authentication_failure,
       "Not in time window"                                             => :snmperr_not_in_time_window,
       "Decryption error"                                               => :snmperr_decryption_err,
       "SCAPI general failure"                                          => :snmperr_sc_general_failure,
@@ -155,17 +155,20 @@ defmodule NetSNMP.Parse do
       [program | reason_words]
           when program in ["snmpget:", "snmpset:", "snmpwalk:", "snmptable:"]
       ->
-        reason =
-          reason_words
-            |> Enum.join(" ")
-            |> get_snmp_api_error
+        reason_string = Enum.join reason_words, " "
+
+        reason = get_snmp_api_error reason_string
+
+        if is_nil reason do
+          :ok = Logger.warn "Received unknown error: '#{reason_string}'"
+        end
 
         {:error, reason}
 
       _ ->
-        error = Enum.join error_words, " "
+        unknown = Enum.join error_words, " "
 
-        :ok = Logger.warn "Received unknown error: '#{error}'"
+        :ok = Logger.debug "Received something we didn't understand: '#{unknown}'"
 
         nil
     end
