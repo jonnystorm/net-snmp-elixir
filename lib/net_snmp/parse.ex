@@ -24,26 +24,26 @@ defmodule NetSNMP.Parse do
   defp get_snmp_client_error(message) do
     # Messages taken from `snmp_errstring()` in `snmplib/snmp_client.c`.
     # Names taken from `include/net-snmp/library/snmp.h`
-    %{"(noError) No Error"                                                                           => :snmp_err_noerror,
-      "(tooBig) Response message would have been too large."                                         => :snmp_err_toobig,
-      "(noSuchName) There is no such variable name in this MIB."                                     => :snmp_err_nosuchname,
-      "(badValue) The value given has the wrong type or length."                                     => :snmp_err_badvalue,
-      "(readOnly) The two parties used do not have access to use the specified SNMP PDU."            => :snmp_err_readonly,
-      "(genError) A general failure occured"                                                         => :snmp_err_generr,
-      "noAccess"                                                                                     => :snmp_err_noaccess,
-      "wrongType (The set datatype does not match the data type the agent expects)"                  => :snmp_err_wrongtype,
-      "wrongLength (The set value has an illegal length from what the agent expects)"                => :snmp_err_wronglength,
-      "wrongEncoding"                                                                                => :snmp_err_wrongencoding,
-      "wrongValue (The set value is illegal or unsupported in some way)"                             => :snmp_err_wrongvalue,
-      "noCreation (That table does not support row creation or that object can not ever be created)" => :snmp_err_nocreation,
-      "inconsistentValue (The set value is illegal or unsupported in some way)"                      => :snmp_err_inconsistentvalue,
-      "resourceUnavailable (This is likely a out-of-memory failure within the agent)"                => :snmp_err_resourceunavailable,
-      "commitFailed"                                                                                 => :snmp_err_commitfailed,
-      "undoFailed"                                                                                   => :snmp_err_undofailed,
-      "authorizationError (access denied to that object)"                                            => :snmp_err_authorizationerror,
-      "notWritable (That object does not support modification)"                                      => :snmp_err_notwritable,
-      "inconsistentName (That object can not currently be created)"                                  => :snmp_err_inconsistentname,
-      "Unknown Error"                                                                                => :snmp_err_unknown
+    %{"(noError) No Error"                                                                => :snmp_err_noerror,
+      "(tooBig) Response message would have been too large."                              => :snmp_err_toobig,
+      "(noSuchName) There is no such variable name in this MIB."                          => :snmp_err_nosuchname,
+      "(badValue) The value given has the wrong type or length."                          => :snmp_err_badvalue,
+      "(readOnly) The two parties used do not have access to use the specified SNMP PDU." => :snmp_err_readonly,
+      "(genError) A general failure occured"                                              => :snmp_err_generr,
+      "noAccess"                                                                          => :snmp_err_noaccess,
+      "wrongType"                                                                         => :snmp_err_wrongtype,
+      "wrongLength"                                                                       => :snmp_err_wronglength,
+      "wrongEncoding"                                                                     => :snmp_err_wrongencoding,
+      "wrongValue"                                                                        => :snmp_err_wrongvalue,
+      "noCreation"                                                                        => :snmp_err_nocreation,
+      "inconsistentValue"                                                                 => :snmp_err_inconsistentvalue,
+      "resourceUnavailable"                                                               => :snmp_err_resourceunavailable,
+      "commitFailed"                                                                      => :snmp_err_commitfailed,
+      "undoFailed"                                                                        => :snmp_err_undofailed,
+      "authorizationError"                                                                => :snmp_err_authorizationerror,
+      "notWritable"                                                                       => :snmp_err_notwritable,
+      "inconsistentName"                                                                  => :snmp_err_inconsistentname,
+      "Unknown Error"                                                                     => :snmp_err_unknown
     }[message]
   end
 
@@ -124,7 +124,7 @@ defmodule NetSNMP.Parse do
   defp parse_snmp_error(error_line) do
     error_words =
       error_line
-        |> String.split("(")
+        |> String.split(" (")
         |> List.first
         |> String.split
 
