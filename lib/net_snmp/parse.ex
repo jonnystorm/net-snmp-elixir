@@ -396,7 +396,7 @@ defmodule NetSNMP.Parse do
   end
 
   def remove_mib_parse_errors(lines) do
-    Enum.filter(lines, & get_mib_parse_error(&1) == nil)
+    Stream.filter(lines, & get_mib_parse_error(&1) == nil)
   end
 
   # Output may take any of the following forms and more:
@@ -416,8 +416,9 @@ defmodule NetSNMP.Parse do
       |> String.replace(~r/^\s*/, "")
       |> String.replace(~r/\s*$/, "")
       |> String.split("\n")
-      |> Enum.filter(& &1 != "")
+      |> Stream.filter(& &1 != "")
       |> remove_mib_parse_errors
+      |> Enum.into([])
       |> debug_inline(& "Scrubbed output is: '#{Enum.join(&1, "\n")}'")
       |> _parse_snmp_output({{}, []})
   end
@@ -461,9 +462,10 @@ defmodule NetSNMP.Parse do
           |> String.replace(~r/^\s*/, "")
           |> String.replace(~r/\s*$/, "")
           |> String.split("\n")
-          |> Enum.filter(& &1 != "")
+          |> Stream.filter(& &1 != "")
           |> remove_mib_parse_errors
-          |> Enum.drop(1)
+          |> Stream.filter(& ! String.starts_with?(&1, "SNMP table: "))
+          |> Enum.into([])
           |> debug_inline(&("Scrubbed output is: '#{Enum.join(&1, "\n")}'"))
           |> Enum.filter(fn "" -> false; _ -> true end)
 

@@ -99,8 +99,21 @@ defmodule NetSNMP.ParseTest do
       Undefined identifier: nsExtensions near line 19 of /usr/share/snmp/mibs/NET-SNMP-EXTEND-MIB.txt
       Cannot find module (SNMP-FRAMEWORK-MIB): At line 10 in /usr/share/snmp/mibs/NET-SNMP-PASS-MIB.txt
       Cannot find module (SNMP-FRAMEWORK-MIB): At line 10 in /usr/share/snmp/mibs/NET-SNMP-EXAMPLES-MIB.txt
+      Bad operator (INTEGER): At line 73 in /usr/share/mibs/ietf/SNMPv2-PDU
+      Unlinked OID in IPATM-IPMC-MIB: marsMIB ::= { mib-2 57 }
+      Undefined identifier: mib-2 near line 18 of /usr/share/mibs/ietf/IPATM-IPMC-MIB
+      Expected "::=" (RFC5644): At line 493 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
+      Expected "{" (EOF): At line 651 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
+      Bad object identifier: At line 651 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
+      Bad parse of OBJECT-IDENTITY: At line 651 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
       """ |> String.split("\n") |> Enum.filter(& &1 != "")
 
-    assert NetSNMP.Parse.remove_mib_parse_errors(output) == []
+    assert Enum.into(NetSNMP.Parse.remove_mib_parse_errors(output), []) == []
+  end
+
+  test "Does not erroneously identify an SNMP error as a MIB parse error" do
+    output = ["snmptable: Unknown user name"]
+
+    assert Enum.into(NetSNMP.Parse.remove_mib_parse_errors(output), []) == output
   end
 end
