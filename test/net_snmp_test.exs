@@ -87,4 +87,20 @@ Dest||Mask||Tos||NextHop||IfIndex||Type||Proto||Age||Info||NextHopAS||Metric1||M
       }
     ]
   end
+
+  test "Returns correct error when parsing snmptable output" do
+    output =
+      """
+      Bad operator (INTEGER): At line 73 in /usr/share/mibs/ietf/SNMPv2-PDU
+      Unlinked OID in IPATM-IPMC-MIB: marsMIB ::= { mib-2 57 }
+      Undefined identifier: mib-2 near line 18 of /usr/share/mibs/ietf/IPATM-IPMC-MIB
+      Expected "::=" (RFC5644): At line 493 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
+      Expected "{" (EOF): At line 651 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
+      Bad object identifier: At line 651 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
+      Bad parse of OBJECT-IDENTITY: At line 651 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
+      snmptable: Unknown user name
+      """
+
+    assert NetSNMP.Parse.parse_snmp_table_output(output) == [{:error, :snmperr_unknown_user_name}]
+  end
 end

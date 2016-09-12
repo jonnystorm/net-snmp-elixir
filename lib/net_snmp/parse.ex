@@ -263,8 +263,7 @@ defmodule NetSNMP.Parse do
         |> String.split
 
     case error_words do
-      ["Timeout:" | _] ->
-        {:error, :etimedout}
+      ["Timeout:" | _] -> {:error, :etimedout}
 
       ["Reason:" | reason_words] ->
         reason =
@@ -274,23 +273,15 @@ defmodule NetSNMP.Parse do
 
         {:error, reason}
 
-      [_, "=", "No", "Such", "Object" | _] ->
-        {:error, :snmp_nosuchobject}
-
-      [_, "=", "No", "Such", "Instance" | _] ->
-        {:error, :snmp_nosuchinstance}
-
-      [_, "=", "No", "more", "variables" | _] ->
-        {:error, :snmp_endofmibview}
-
-      ["Was", "that", "a", "table?" | _] ->
-        {:error, :was_that_a_table?}
-
+      [_, "=", "No", "Such", "Object"    | _] -> {:error, :snmp_nosuchobject}
+      [_, "=", "No", "Such", "Instance"  | _] -> {:error, :snmp_nosuchinstance}
+      [_, "=", "No", "more", "variables" | _] -> {:error, :snmp_endofmibview}
+      ["Was", "that", "a", "table?"      | _] -> {:error, :was_that_a_table?}
+      [_, "No", "entries"                   ] -> []
       [program | reason_words]
           when program in ["snmpget:", "snmpset:", "snmpwalk:", "snmptable:"]
       ->
         reason_string = Enum.join reason_words, " "
-
         reason = get_snmp_api_error reason_string
 
         if is_nil reason do
@@ -399,6 +390,17 @@ defmodule NetSNMP.Parse do
     Stream.filter(lines, & get_mib_parse_error(&1) == nil)
   end
 
+  defp scrub_snmp_output(output) do
+    output
+      |> String.replace(~r/^\s*/, "")
+      |> String.replace(~r/\s*$/, "")
+      |> String.split("\n")
+      |> Stream.filter(& &1 != "")
+      |> remove_mib_parse_errors
+      |> Stream.filter(& ! String.starts_with?(&1, "SNMP table: "))
+      |> Enum.into([])
+  end
+
   # Output may take any of the following forms and more:
   #
   # .1.3.6.1.2.1.1.1.0 = STRING: Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(25d), RELEASE SOFTWARE (fc1)
@@ -413,12 +415,7 @@ defmodule NetSNMP.Parse do
   def parse_snmp_output(output) do
     output
       |> debug_inline(& "Output is: '#{&1}'")
-      |> String.replace(~r/^\s*/, "")
-      |> String.replace(~r/\s*$/, "")
-      |> String.split("\n")
-      |> Stream.filter(& &1 != "")
-      |> remove_mib_parse_errors
-      |> Enum.into([])
+      |> scrub_snmp_output
       |> debug_inline(& "Scrubbed output is: '#{Enum.join(&1, "\n")}'")
       |> _parse_snmp_output({{}, []})
   end
@@ -455,41 +452,23 @@ defmodule NetSNMP.Parse do
   """
   @spec parse_snmp_table_output(String.t) :: [Map.t]
   def parse_snmp_table_output(output, field_delim \\ "||") do
-    try do
-      [headers | rows] =
-        output
-          |> debug_inline(& "Output is: '#{&1}'")
-          |> String.replace(~r/^\s*/, "")
-          |> String.replace(~r/\s*$/, "")
-          |> String.split("\n")
-          |> Stream.filter(& &1 != "")
-          |> remove_mib_parse_errors
-          |> Stream.filter(& ! String.starts_with?(&1, "SNMP table: "))
-          |> Enum.into([])
-          |> debug_inline(& "Scrubbed output is: '#{Enum.join(&1, "\n")}'")
+    [headers | rows] =
+      output
+        |> debug_inline(& "Output is: '#{&1}'")
+        |> scrub_snmp_output
+        |> debug_inline(& "Scrubbed output is: '#{Enum.join(&1, "\n")}'")
 
-      if rows == [] do
-        [parse_snmp_error output]
+    if rows == [] do
+      List.flatten([parse_snmp_error(headers)])
 
-      else
-        rows
-          |> Stream.map(&String.split(&1, field_delim))
-          |> Enum.map(fn values ->
-            headers
-              |> parse_column_headers(field_delim)
-              |> columns_and_values_to_data_model(values)
-          end)
-      end
-
-    rescue
-      _ ->
-        case String.split output do
-          [_, "No", "entries"] ->
-            []
-
-          _ ->
-            [parse_snmp_error output]
-        end
+    else
+      rows
+        |> Stream.map(&String.split(&1, field_delim))
+        |> Enum.map(fn values ->
+          headers
+            |> parse_column_headers(field_delim)
+            |> columns_and_values_to_data_model(values)
+        end)
     end
   end
 end

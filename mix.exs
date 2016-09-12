@@ -3,7 +3,7 @@ defmodule NetSNMP.Mixfile do
 
   def project do
     [ app: :net_snmp_ex,
-      version: "0.0.29",
+      version: "0.0.30",
       name: "NetSNMP",
       source_url: "https://github.com/jonnystorm/net-snmp-elixir",
       elixir: "~> 1.0",
