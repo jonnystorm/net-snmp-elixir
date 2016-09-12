@@ -316,7 +316,7 @@ defmodule NetSNMP.Parse do
             [type_string, value] ->
               type = output_type_string_to_type type_string
 
-              {oid, type, value}
+              {oid, type, String.replace(value, ~r/^"|"$/, "")}
 
             [value] ->
               # Displaying timeticks as a number strips them of their type,
@@ -326,7 +326,7 @@ defmodule NetSNMP.Parse do
               #   sure it parses to an integer.
               _ = String.to_integer value
 
-              {oid, :timeticks, value}
+              {oid, :timeticks, String.replace(value, ~r/^"|"$/, "")}
           end
 
         _ ->
