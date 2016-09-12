@@ -466,16 +466,20 @@ defmodule NetSNMP.Parse do
           |> remove_mib_parse_errors
           |> Stream.filter(& ! String.starts_with?(&1, "SNMP table: "))
           |> Enum.into([])
-          |> debug_inline(&("Scrubbed output is: '#{Enum.join(&1, "\n")}'"))
-          |> Enum.filter(fn "" -> false; _ -> true end)
+          |> debug_inline(& "Scrubbed output is: '#{Enum.join(&1, "\n")}'")
 
-      rows
-        |> Stream.map(&String.split(&1, field_delim))
-        |> Enum.map(fn values ->
-          headers
-            |> parse_column_headers(field_delim)
-            |> columns_and_values_to_data_model(values)
-        end)
+      if rows == [] do
+        [parse_snmp_error output]
+
+      else
+        rows
+          |> Stream.map(&String.split(&1, field_delim))
+          |> Enum.map(fn values ->
+            headers
+              |> parse_column_headers(field_delim)
+              |> columns_and_values_to_data_model(values)
+          end)
+      end
 
     rescue
       _ ->
