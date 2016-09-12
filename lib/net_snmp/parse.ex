@@ -461,9 +461,9 @@ defmodule NetSNMP.Parse do
           |> String.replace(~r/^\s*/, "")
           |> String.replace(~r/\s*$/, "")
           |> String.split("\n")
-          |> Enum.drop(1)
           |> Enum.filter(& &1 != "")
           |> remove_mib_parse_errors
+          |> Enum.drop(1)
           |> debug_inline(&("Scrubbed output is: '#{Enum.join(&1, "\n")}'"))
           |> Enum.filter(fn "" -> false; _ -> true end)
 
