@@ -412,12 +412,13 @@ defmodule NetSNMP.Parse do
   @spec parse_snmp_output(String.t) :: Keyword.t
   def parse_snmp_output(output) do
     output
+      |> debug_inline(& "Output is: '#{&1}'")
       |> String.replace(~r/^\s*/, "")
       |> String.replace(~r/\s*$/, "")
-      |> debug_inline(&("Output is: '#{&1}'"))
       |> String.split("\n")
       |> Enum.filter(& &1 != "")
       |> remove_mib_parse_errors
+      |> debug_inline(& "Scrubbed output is: '#{Enum.join(&1, "\n")}'")
       |> _parse_snmp_output({{}, []})
   end
 
@@ -453,17 +454,17 @@ defmodule NetSNMP.Parse do
   """
   @spec parse_snmp_table_output(String.t) :: [Map.t]
   def parse_snmp_table_output(output, field_delim \\ "||") do
-    :ok = Logger.debug "Output is '#{output}'"
-
     try do
       [headers | rows] =
         output
+          |> debug_inline(& "Output is: '#{&1}'")
           |> String.replace(~r/^\s*/, "")
           |> String.replace(~r/\s*$/, "")
           |> String.split("\n")
           |> Enum.drop(1)
           |> Enum.filter(& &1 != "")
           |> remove_mib_parse_errors
+          |> debug_inline(&("Scrubbed output is: '#{Enum.join(&1, "\n")}'"))
           |> Enum.filter(fn "" -> false; _ -> true end)
 
       rows
