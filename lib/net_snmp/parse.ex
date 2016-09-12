@@ -21,6 +21,140 @@ defmodule NetSNMP.Parse do
       |> String.to_atom
   end
 
+  defp get_mib_parse_error(message) do
+    # Messages taken from `snmplib/parse.c`.
+
+    (message =~ ~r/is a reserved word/                                                      && :mib_parse_error) ||
+    (message =~ ~r/.* (EOF): At line \d* in .*/                                              && :mib_parse_error) ||
+    (message =~ ~r/.* (.*): At line \d* in .*/                                               && :mib_parse_error) ||
+    (message =~ ~r/.*: At line \d* in .*/                                                    && :mib_parse_error) ||
+    (message =~ ~r/MIB search path: .*/                                                     && :mib_parse_error) ||
+    (message =~ ~r/Can't find .* in tbuckets/                                               && :mib_parse_error) ||
+    (message =~ ~r/Can't find .* in .*'s children/                                          && :mib_parse_error) ||
+    (message =~ ~r/Warning: .*.\d* is both .* and .* (.*)/                                   && :mib_parse_error) ||
+    (message =~ ~r/Warning: .*.\d* is both .* and .* (.*)/                                   && :mib_parse_error) ||
+    (message =~ ~r/Warning: expected anonymous node (either .* or .*) in .*/                && :mib_parse_error) ||
+    (message =~ ~r/Did not find '.*' in module .* (.*)/                                     && :mib_parse_error) ||
+    (message =~ ~r/Unlinked OID in .*: .* ::= { .* \d* }/                                    && :mib_parse_error) ||
+    (message =~ ~r/Undefined identifier: .* near line \d* of .*/                             && :mib_parse_error) ||
+    (message =~ ~r/Warning: Upper bound not handled correctly (.* != \d*): At line \d* in .*/ && :mib_parse_error) ||
+    (message =~ ~r/.* MACRO (lines \d*..\d* parsed and ignored)./                             && :mib_parse_error) ||
+    (message =~ ~r/Loading replacement module .* for .* (.*)/                               && :mib_parse_error) ||
+    (message =~ ~r/Importing .* from replacement module .* instead of .* (.*)/              && :mib_parse_error) ||
+    (message =~ ~r/Cannot adopt OID in .*: .* ::= { .* \d* }/                                && :mib_parse_error) ||
+    (message =~ ~r/Warning: Module .* was in .* now is .*/                                  && :mib_parse_error) ||
+    (message =~ ~r/add_mibdir: strings scanned in from .*\/.* /                             && :mib_parse_error) ||
+    (message =~ ~r/Failed to parse MIB file .*/                                             && :mib_parse_error) ||
+    (message =~ ~r/failed to allocated memory for gpMibErrorString/                         && :mib_parse_error) ||
+    case message do
+      <<"Attempt to define a root oid",                _ :: binary>> -> :mib_parse_error
+      <<"Bad ACCESS",                                  _ :: binary>> -> :mib_parse_error
+      <<"Bad ACCESS type",                             _ :: binary>> -> :mib_parse_error
+      <<"Bad AUGMENTS list",                           _ :: binary>> -> :mib_parse_error
+      <<"Bad CONTACT-INFO",                            _ :: binary>> -> :mib_parse_error
+      <<"Bad day in timestamp",                        _ :: binary>> -> :mib_parse_error
+      <<"Bad DEFAULTVALUE",                            _ :: binary>> -> :mib_parse_error
+      <<"Bad DESCRIPTION",                             _ :: binary>> -> :mib_parse_error
+      <<"Bad format",                                  _ :: binary>> -> :mib_parse_error
+      <<"Bad format for OBJECT-TYPE",                  _ :: binary>> -> :mib_parse_error
+      <<"Bad format of optional clauses",              _ :: binary>> -> :mib_parse_error
+      <<"Bad group name",                              _ :: binary>> -> :mib_parse_error
+      <<"Bad hour in timestamp",                       _ :: binary>> -> :mib_parse_error
+      <<"Bad identifier",                              _ :: binary>> -> :mib_parse_error
+      <<"Bad INDEX list",                              _ :: binary>> -> :mib_parse_error
+      <<"Bad MIN-ACCESS spec",                         _ :: binary>> -> :mib_parse_error
+      <<"Bad minute in timestamp",                     _ :: binary>> -> :mib_parse_error
+      <<"Bad module name",                             _ :: binary>> -> :mib_parse_error
+      <<"Bad month in timestamp",                      _ :: binary>> -> :mib_parse_error
+      <<"Bad object identifier",                       _ :: binary>> -> :mib_parse_error
+      <<"Bad Object Identifier",                       _ :: binary>> -> :mib_parse_error
+      <<"Bad object name",                             _ :: binary>> -> :mib_parse_error
+      <<"Bad object name in list",                     _ :: binary>> -> :mib_parse_error
+      <<"Bad OBJECTS list",                            _ :: binary>> -> :mib_parse_error
+      <<"Bad operator",                                _ :: binary>> -> :mib_parse_error
+      <<"Bad ORGANIZATION",                            _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of AGENT-CAPABILITIES",             _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of MACRO",                          _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of MODULE-COMPLIANCE",              _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of MODULE-IDENTITY",                _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of NOTIFICATION-GROUP",             _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of NOTIFICATION-TYPE",              _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of OBJECT-GROUP",                   _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of OBJECT IDENTIFIER",              _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of OBJECT-IDENTITY",                _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of OBJECT-TYPE",                    _ :: binary>> -> :mib_parse_error
+      <<"Bad parse of TRAP-TYPE",                      _ :: binary>> -> :mib_parse_error
+      <<"Bad REFERENCE",                               _ :: binary>> -> :mib_parse_error
+      <<"Bad REVISION",                                _ :: binary>> -> :mib_parse_error
+      <<"Bad SIZE syntax",                             _ :: binary>> -> :mib_parse_error
+      <<"Bad STATUS",                                  _ :: binary>> -> :mib_parse_error
+      <<"Bad STATUS value",                            _ :: binary>> -> :mib_parse_error
+      <<"Bad syntax",                                  _ :: binary>> -> :mib_parse_error
+      <<"Bad timestamp format",                        _ :: binary>> -> :mib_parse_error
+      <<"Bad timestamp format (11 or 13 characters)",  _ :: binary>> -> :mib_parse_error
+      <<"Bad Trap Format",                             _ :: binary>> -> :mib_parse_error
+      <<"Bad UNITS",                                   _ :: binary>> -> :mib_parse_error
+      <<"Bad VARIABLES list",                          _ :: binary>> -> :mib_parse_error
+      <<"Cannot find module",                          _ :: binary>> -> :mib_parse_error
+      <<"Cannot have both INDEX and AUGMENTS",         _ :: binary>> -> :mib_parse_error
+      <<"DESCRIPTION must be string",                  _ :: binary>> -> :mib_parse_error
+      <<"DISPLAY-HINT must be string",                 _ :: binary>> -> :mib_parse_error
+      <<"Error, END before start of MIB",              _ :: binary>> -> :mib_parse_error
+      <<"Error, nested MIBS",                          _ :: binary>> -> :mib_parse_error
+      <<"Expected \"::=\"",                            _ :: binary>> -> :mib_parse_error
+      <<"Expected \"(\"",                              _ :: binary>> -> :mib_parse_error
+      <<"Expected \")\"",                              _ :: binary>> -> :mib_parse_error
+      <<"Expected \"]\"",                              _ :: binary>> -> :mib_parse_error
+      <<"Expected \"{\"",                              _ :: binary>> -> :mib_parse_error
+      <<"Expected \"}\"",                              _ :: binary>> -> :mib_parse_error
+      <<"Expected a closing parenthesis",              _ :: binary>> -> :mib_parse_error
+      <<"Expected \"{\" after DEFVAL",                 _ :: binary>> -> :mib_parse_error
+      <<"Expected \"}\" after group list",             _ :: binary>> -> :mib_parse_error
+      <<"Expected \"}\" after list",                   _ :: binary>> -> :mib_parse_error
+      <<"Expected \"(\" after SIZE",                   _ :: binary>> -> :mib_parse_error
+      <<"Expected \")\" after SIZE",                   _ :: binary>> -> :mib_parse_error
+      <<"Expected a number",                           _ :: binary>> -> :mib_parse_error
+      <<"Expected a Number",                           _ :: binary>> -> :mib_parse_error
+      <<"Expected CONTACT-INFO",                       _ :: binary>> -> :mib_parse_error
+      <<"Expected DESCRIPTION",                        _ :: binary>> -> :mib_parse_error
+      <<"Expected group name",                         _ :: binary>> -> :mib_parse_error
+      <<"Expected IDENTIFIER",                         _ :: binary>> -> :mib_parse_error
+      <<"Expected INCLUDES",                           _ :: binary>> -> :mib_parse_error
+      <<"Expected integer",                            _ :: binary>> -> :mib_parse_error
+      <<"Expected label or number",                    _ :: binary>> -> :mib_parse_error
+      <<"Expected LAST-UPDATED",                       _ :: binary>> -> :mib_parse_error
+      <<"Expected MODULE",                             _ :: binary>> -> :mib_parse_error
+      <<"Expected NUMBER",                             _ :: binary>> -> :mib_parse_error
+      <<"Expected ORGANIZATION",                       _ :: binary>> -> :mib_parse_error
+      <<"Expected PRODUCT-RELEASE",                    _ :: binary>> -> :mib_parse_error
+      <<"Expected SIZE",                               _ :: binary>> -> :mib_parse_error
+      <<"Expected STATUS",                             _ :: binary>> -> :mib_parse_error
+      <<"Expected STRING after PRODUCT-RELEASE",       _ :: binary>> -> :mib_parse_error
+      <<"Expected \")\" to terminate SIZE",            _ :: binary>> -> :mib_parse_error
+      <<"Group not found in module",                   _ :: binary>> -> :mib_parse_error
+      <<"Missing \"}\" after DEFVAL",                  _ :: binary>> -> :mib_parse_error
+      <<"Module not found",                            _ :: binary>> -> :mib_parse_error
+      <<"Need STRING for LAST-UPDATED",                _ :: binary>> -> :mib_parse_error
+      <<"Object not found in module",                  _ :: binary>> -> :mib_parse_error
+      <<"Resource failure",                            _ :: binary>> -> :mib_parse_error
+      <<"Should be ACCESS",                            _ :: binary>> -> :mib_parse_error
+      <<"Should be STATUS",                            _ :: binary>> -> :mib_parse_error
+      <<"STATUS should be current or obsolete",        _ :: binary>> -> :mib_parse_error
+      <<"Textual convention doesn't map to real type", _ :: binary>> -> :mib_parse_error
+      <<"Timestamp should end with Z",                 _ :: binary>> -> :mib_parse_error
+      <<"Too long OID",                                _ :: binary>> -> :mib_parse_error
+      <<"Too many imported symbols",                   _ :: binary>> -> :mib_parse_error
+      <<"Too many textual conventions",                _ :: binary>> -> :mib_parse_error
+      <<"Unknown group",                               _ :: binary>> -> :mib_parse_error
+      <<"Unknown module",                              _ :: binary>> -> :mib_parse_error
+      <<"Warning: No known translation for type",      _ :: binary>> -> :mib_parse_error
+      <<"Warning: string too long",                    _ :: binary>> -> :mib_parse_error
+      <<"Warning: This entry is pretty silly",         _ :: binary>> -> :mib_parse_error
+      <<"Warning: token too long",                     _ :: binary>> -> :mib_parse_error
+      _ -> nil
+    end
+  end
+
   defp get_snmp_client_error(message) do
     # Messages taken from `snmp_errstring()` in `snmplib/snmp_client.c`.
     # Names taken from `include/net-snmp/library/snmp.h`
@@ -237,6 +371,9 @@ defmodule NetSNMP.Parse do
   end
   defp _parse_snmp_output([line | rest], {otv_tuple, acc}) do
     case parse_snmp_output_line(line) do
+      {:error, :mib_parse_error} ->
+        _parse_snmp_output rest, {otv_tuple, acc}
+
       {:error, _error} = result ->
         _parse_snmp_output rest, {{}, acc ++ [result]}
 
@@ -258,6 +395,10 @@ defmodule NetSNMP.Parse do
     output
   end
 
+  def remove_mib_parse_errors(lines) do
+    Enum.filter(lines, & get_mib_parse_error(&1) == nil)
+  end
+
   # Output may take any of the following forms and more:
   #
   # .1.3.6.1.2.1.1.1.0 = STRING: Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(25d), RELEASE SOFTWARE (fc1)
@@ -275,6 +416,8 @@ defmodule NetSNMP.Parse do
       |> String.replace(~r/\s*$/, "")
       |> debug_inline(&("Output is: '#{&1}'"))
       |> String.split("\n")
+      |> Enum.filter(& &1 != "")
+      |> remove_mib_parse_errors
       |> _parse_snmp_output({{}, []})
   end
 
@@ -319,6 +462,8 @@ defmodule NetSNMP.Parse do
           |> String.replace(~r/\s*$/, "")
           |> String.split("\n")
           |> Enum.drop(1)
+          |> Enum.filter(& &1 != "")
+          |> remove_mib_parse_errors
           |> Enum.filter(fn "" -> false; _ -> true end)
 
       rows
