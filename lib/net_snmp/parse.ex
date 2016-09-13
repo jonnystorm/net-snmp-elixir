@@ -319,9 +319,6 @@ defmodule NetSNMP.Parse do
 
               {oid, :timeticks, String.replace(value, ~r/^"|"$/, "")}
           end
-
-        _ ->
-          parse_snmp_error line
       end
 
     rescue
@@ -458,17 +455,28 @@ defmodule NetSNMP.Parse do
         |> scrub_snmp_output
         |> debug_inline(& "Scrubbed output is: '#{Enum.join(&1, "\n")}'")
 
-    if rows == [] do
-      List.flatten([parse_snmp_error(headers)])
+    cond do
+      String.contains?(headers, " ") ->
+        [headers | rows]
+          |> Enum.join("\n")
+          |> parse_snmp_output
+          |> List.wrap
+          |> List.flatten
 
-    else
-      rows
-        |> Stream.map(&String.split(&1, field_delim))
-        |> Enum.map(fn values ->
-          headers
-            |> parse_column_headers(field_delim)
-            |> columns_and_values_to_data_model(values)
-        end)
+      rows == [] ->
+        headers
+          |> parse_snmp_output
+          |> List.wrap
+          |> List.flatten
+
+      true ->
+        rows
+          |> Stream.map(&String.split(&1, field_delim))
+          |> Enum.map(fn values ->
+            headers
+              |> parse_column_headers(field_delim)
+              |> columns_and_values_to_data_model(values)
+          end)
     end
   end
 end
