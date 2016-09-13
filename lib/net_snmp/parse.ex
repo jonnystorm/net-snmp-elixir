@@ -359,6 +359,9 @@ defmodule NetSNMP.Parse do
   end
   defp _parse_snmp_output([line | rest], {otv_tuple, acc}) do
     case parse_snmp_output_line(line) do
+      [] ->
+        _parse_snmp_output rest, {otv_tuple, acc}
+
       {:error, :mib_parse_error} ->
         _parse_snmp_output rest, {otv_tuple, acc}
 
