@@ -6,10 +6,10 @@ defmodule NetSNMP.Mixfile do
       version: "0.0.32",
       name: "NetSNMP",
       source_url: "https://github.com/jonnystorm/net-snmp-elixir",
-      elixir: "~> 1.0",
+      elixir: "~> 1.3",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
-      deps: deps,
+      deps: deps(),
       docs: [extras: ["README.md"]]
     ]
   end
@@ -35,7 +35,7 @@ defmodule NetSNMP.Mixfile do
 
   defp deps do
     [ {:snmp_mib_ex, git: "https://github.com/jonnystorm/snmp-mib-elixir"},
-      {:ex_doc, "~> 0.13", only: :dev}
+      {:ex_doc, "~> 0.15", only: :dev}
     ]
   end
 end
