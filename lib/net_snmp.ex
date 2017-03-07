@@ -16,20 +16,20 @@ defmodule NetSNMP do
 
       iex> NetSNMP.credential [:v1, "public"]
       [version: "1", community: "public"]
-      
+
       iex> NetSNMP.credential [:v2c, "public"]
       [version: "2c", community: "public"]
-      
+
       iex> NetSNMP.credential [:v3, :no_auth_no_priv, "user"]
       [version: "3", sec_level: "noAuthNoPriv", sec_name: "user"]
-      
+
       iex> NetSNMP.credential [:v3, :auth_no_priv, "user", :sha, "authpass"]
       [ version: "3",
         sec_level: "authNoPriv",
         sec_name: "user",
         auth_proto: "sha", auth_pass: "authpass"
       ]
-      
+
       iex> NetSNMP.credential [:v3, :auth_priv, "user", :sha, "authpass", :aes, "privpass"]
       [ version: "3",
         sec_level: "authPriv",
@@ -49,10 +49,10 @@ defmodule NetSNMP do
 
       [:v3, :no_auth_no_priv, _] ->
         apply &credential/3, args
-  
+
       [:v3, :auth_no_priv, _, _, _] ->
         apply &credential/5, args
-  
+
       [:v3, :auth_priv, _, _, _, _, _] ->
         apply &credential/7, args
     end
@@ -65,7 +65,7 @@ defmodule NetSNMP do
 
       iex> NetSNMP.credential :v1, "public"
       [version: "1", community: "public"]
-      
+
       iex> NetSNMP.credential :v2c, "public"
       [version: "2c", community: "public"]
   """
@@ -232,8 +232,8 @@ defmodule NetSNMP do
     ] |> Enum.join(" ")
   end
   defp gen_snmpcmd(:table, snmp_object, uri, credential, context) do
-    max_reps = get_max_repetitions
-    delim = get_field_delimiter
+    max_reps = get_max_repetitions()
+    delim = get_field_delimiter()
 
     [ "snmptable -Le -mALL -Cr #{max_reps} -Clibf '#{delim}' -OXUet -n '#{context}'",
       credential_to_snmpcmd_args(credential),
