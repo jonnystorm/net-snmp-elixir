@@ -44,6 +44,19 @@ Compiled Wed 18-Aug-10 07:55 by prod_rel_team
       ]
   end
 
+  test "parses snmpget/walk output with empty string" do
+    output = "
+.1.3.6.1.2.1.1.6.0 = \"\"
+.1.3.6.1.2.1.1.7.0 = INTEGER: 78
+.1.3.6.1.2.1.1.8.0 = 0"
+
+    assert NetSNMP.Parse.parse_snmp_output(output) ==
+      [ {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 6, 0], type: 4, value: ""}},
+        {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 7, 0], type: 2, value: 78}},
+        {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 8, 0], type: 2, value: "0"}}
+      ]
+  end
+
   test "parses snmptable output" do
     output = "SNMP table: IP-FORWARD-MIB::ipCidrRouteTable
 
