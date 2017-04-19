@@ -451,7 +451,8 @@ defmodule NetSNMP.Parse do
          nexthop: "0.0.0.0", nexthopas: "0", proto: "2", status: "1", tos: "0",
          type: "3"}]
   """
-  @spec parse_snmp_table_output(String.t) :: [Map.t]
+  @spec parse_snmp_table_output(String.t) :: [%{}]
+
   def parse_snmp_table_output(output, field_delim \\ "||") do
     [headers | rows] =
       output

@@ -1,0 +1,2 @@
+# Accept Keyword.t as credential/1's return type
+is a supertype of the success typing: 'Elixir.NetSNMP':credential
