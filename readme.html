@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.15.0">
+    <title>net-snmp-elixir – NetSNMP v0.0.32</title>
+    <link rel="stylesheet" href="dist/app-f7824c48e6.css" />
+    
+    <script src="dist/sidebar_items-12cb46cae2.js"></script>
+  </head>
+  <body data-type="extras">
+    <script>if(localStorage.getItem('night-mode')) document.body.className += ' night-mode';</script>
+
+<div class="main">
+<button class="sidebar-toggle">
+  <i class="icon-menu"></i>
+</button>
+<section class="sidebar">
+
+  
+  <a href="api-reference.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        NetSNMP
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v0.0.32
+      </h2>
+    </div>
+    
+  </a>
+
+  <div class="sidebar-search">
+    <i class="icon-search"></i>
+    <input type="text" class="sidebar-searchInput" placeholder="search" autocomplete="off" />
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+
+<h1>net-snmp-elixir</h1>
+<p><a href="https://travis-ci.org/jonnystorm/net-snmp-elixir"><img src="https://travis-ci.org/jonnystorm/net-snmp-elixir.svg?branch=master" alt="Build Status"/></a></p>
+<p>A thin layer of Elixir poured atop net-snmp utilities.
+To be used with <a href="https://github.com/jonnystorm/snmp-mib-elixir">snmp-mib-elixir</a>.</p>
+<p>If you’re able, please consider contributing to
+<a href="https://github.com/jonnystorm/snmp-elixir">snmp-elixir</a>; OTP, as is,
+should provide 90% of what <code class="inline">net-snmp-elixir</code> does.</p>
+<p>See the <a href="https://jonnystorm.github.io/net-snmp-elixir">API documentation</a>.</p>
+<h3>To use:</h3>
+<pre><code class="elixir">iex&gt; credential = NetSNMP.credential :v2c, &quot;public&quot;
+[version: &quot;2c&quot;, community: &quot;public&quot;]
+
+iex&gt; agent = URI.parse &quot;snmp://192.0.2.2&quot;
+%URI{authority: &quot;192.0.2.2&quot;, fragment: nil, host: &quot;192.0.2.2&quot;, path: nil,
+ port: nil, query: nil, scheme: &quot;snmp&quot;, userinfo: nil}
+
+iex&gt; sysname_object = SNMPMIB.object &quot;.1.3.6.1.2.1.1.5&quot;, :string, &quot;&quot;
+%SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 5], type: 4, value: &quot;&quot;}
+
+iex&gt; sysname_object |&gt; SNMPMIB.index(0) |&gt; NetSNMP.get(agent, credential)
+[ok: %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 5, 0], type: 4, value: &quot;R1&quot;}]
+
+
+iex&gt; ip_net_to_media_table_object = SNMPMIB.object &quot;1.3.6.1.2.1.4.22&quot;, :any, nil
+[ok: %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 4, 22], type: 0, value: nil}]
+
+iex&gt; NetSNMP.walk ip_net_to_media_table_object, agent, credential
+[ok: %SNMPMIB.Object{oid: [1,3,6,1,2,1,4,22,1,1,2,192,0,2,1], type: 2, value: 2},
+ ok: %SNMPMIB.Object{oid: [1,3,6,1,2,1,4,22,1,1,2,192,0,2,2], type: 2, value: 2},
+ ok: %SNMPMIB.Object{oid: [1,3,6,1,2,1,4,22,1,2,2,192,0,2,1], type: 4, value: &quot;66:fb:30:37:c3:81&quot;},
+ ok: %SNMPMIB.Object{oid: [1,3,6,1,2,1,4,22,1,2,2,192,0,2,2], type: 4, value: &quot;c2:1:39:f3:0:0&quot;},
+ ok: %SNMPMIB.Object{oid: [1,3,6,1,2,1,4,22,1,3,2,192,0,2,1], type: 4, value: &quot;192.0.2.1&quot;},
+ ok: %SNMPMIB.Object{oid: [1,3,6,1,2,1,4,22,1,3,2,192,0,2,2], type: 4, value: &quot;192.0.2.2&quot;},
+ ok: %SNMPMIB.Object{oid: [1,3,6,1,2,1,4,22,1,4,2,192,0,2,1], type: 2, value: 3},
+ ok: %SNMPMIB.Object{oid: [1,3,6,1,2,1,4,22,1,4,2,192,0,2,2], type: 2, value: 4}]
+
+
+iex&gt; ip_cidr_route_table_object = SNMPMIB.object &quot;1.3.6.1.2.1.4.24.4&quot;, :any, nil
+%SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 4, 24, 4], type: 0, value: nil}
+
+iex&gt; NetSNMP.table ip_cidr_route_table_object, agent, credential
+[%{age: &quot;313&quot;, dest: &quot;192.0.2.2&quot;, ifindex: &quot;2&quot;, info: &quot;SNMPv2-SMI::zeroDotZero&quot;,
+   mask: &quot;255.255.255.254&quot;, metric1: &quot;0&quot;, metric2: &quot;-1&quot;, metric3: &quot;-1&quot;,
+   metric4: &quot;-1&quot;, metric5: &quot;-1&quot;, nexthop: &quot;0.0.0.0&quot;, nexthopas: &quot;0&quot;, proto: &quot;2&quot;,
+   status: &quot;1&quot;, tos: &quot;0&quot;, type: &quot;3&quot;},
+ %{age: &quot;2&quot;, dest: &quot;192.0.2.33&quot;, ifindex: &quot;6&quot;, info: &quot;SNMPv2-SMI::zeroDotZero&quot;,
+   mask: &quot;255.255.255.255&quot;, metric1: &quot;0&quot;, metric2: &quot;-1&quot;, metric3: &quot;-1&quot;,
+   metric4: &quot;-1&quot;, metric5: &quot;-1&quot;, nexthop: &quot;0.0.0.0&quot;, nexthopas: &quot;0&quot;, proto: &quot;2&quot;,
+   status: &quot;1&quot;, tos: &quot;0&quot;, type: &quot;3&quot;}]</code></pre>
+<p>For now, this assumes you (1) have net-snmp utilities installed and (2) <code class="inline">snmpget</code>, <code class="inline">snmpset</code>, etc. are in your <code class="inline">$PATH</code>.</p>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.15.0),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle" />
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-372682077e.js"></script>
+  </body>
+</html>
+
