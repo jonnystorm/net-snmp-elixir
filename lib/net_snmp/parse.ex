@@ -302,6 +302,7 @@ defmodule NetSNMP.Parse do
   defp parse_snmp_output_line(line) do
     try do
       case String.split line, " ", parts: 3 do
+        [oid, "=", "\"\""] -> {oid, :string, ""}
         [oid, "=", type_string_and_value] ->
           case String.split(type_string_and_value, ": ", parts: 2) do
             [type_string, value] ->
