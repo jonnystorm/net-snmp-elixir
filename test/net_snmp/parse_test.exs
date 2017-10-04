@@ -106,14 +106,29 @@ defmodule NetSNMP.ParseTest do
       Expected "{" (EOF): At line 651 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
       Bad object identifier: At line 651 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
       Bad parse of OBJECT-IDENTITY: At line 651 in /usr/share/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB
-      """ |> String.split("\n") |> Enum.filter(& &1 != "")
+      """ |> String.split("\n")
+          |> Enum.filter(& &1 != "")
 
-    assert Enum.into(NetSNMP.Parse.remove_mib_parse_errors(output), []) == []
+    result =
+      output
+      |> NetSNMP.Parse.remove_mib_parse_errors
+      |> Enum.into([])
+
+    assert result == []
   end
 
-  test "Does not erroneously identify an SNMP error as a MIB parse error" do
+  test """
+  Does not erroneously identify an SNMP error as a MIB
+  parse error
+  """
+  do
     output = ["snmptable: Unknown user name"]
 
-    assert Enum.into(NetSNMP.Parse.remove_mib_parse_errors(output), []) == output
+    result =
+      output
+      |> NetSNMP.Parse.remove_mib_parse_errors
+      |> Enum.into([])
+
+    assert result == output
   end
 end

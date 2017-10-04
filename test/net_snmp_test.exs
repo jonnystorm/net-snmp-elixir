@@ -10,19 +10,47 @@ defmodule NetSNMPTest do
 
   test "credential fails for invalid security level" do
     assert_raise FunctionClauseError, fn ->
-      NetSNMP.credential(:v3, :blarg, "anname", :sha, "anpass", :des, "anpass2")
+      NetSNMP.credential(
+        :v3,
+        :blarg,
+        "anname",
+        :sha,
+        "anpass",
+        :des,
+        "anpass2"
+      )
     end
   end
 
-  test "credential fails for invalid authentication protocol" do
+  test """
+  credential fails for invalid authentication
+  protocol
+  """
+  do
     assert_raise FunctionClauseError, fn ->
-      NetSNMP.credential(:v3, :auth_priv, "anname", :blarg, "anpass", :des, "anpass2")
+      NetSNMP.credential(
+        :v3,
+        :auth_priv,
+        "anname",
+        :blarg,
+        "anpass",
+        :des,
+        "anpass2"
+      )
     end
   end
 
   test "credential fails for invalid privacy protocol" do
     assert_raise FunctionClauseError, fn ->
-      NetSNMP.credential(:v3, :auth_priv, "anname", :sha, "anpass", :blarg, "anpass2")
+      NetSNMP.credential(
+        :v3,
+        :auth_priv,
+        "anname",
+        :sha,
+        "anpass",
+        :blarg,
+        "anpass2"
+      )
     end
   end
 
@@ -37,10 +65,34 @@ Compiled Wed 18-Aug-10 07:55 by prod_rel_team
 .1.3.6.1.2.1.1.8.0 = 0"
 
     assert NetSNMP.Parse.parse_snmp_output(output) ==
-      [ {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 1, 0], type: 4, value: "Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(25d), RELEASE SOFTWARE (fc1)\nTechnical Support: http://www.cisco.com/techsupport\nCopyright (c) 1986-2010 by Cisco Systems, Inc.\nCompiled Wed 18-Aug-10 07:55 by prod_rel_team"}},
-        {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 6, 0], type: 4, value: ""}},
-        {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 7, 0], type: 2, value: 78}},
-        {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 8, 0], type: 2, value: "0"}}
+      [ { :ok,
+          %SNMPMIB.Object{
+            oid: [1,3,6,1,2,1,1,1,0],
+            type: 4,
+            value: "Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(25d), RELEASE SOFTWARE (fc1)\nTechnical Support: http://www.cisco.com/techsupport\nCopyright (c) 1986-2010 by Cisco Systems, Inc.\nCompiled Wed 18-Aug-10 07:55 by prod_rel_team"
+          }
+        },
+        { :ok,
+          %SNMPMIB.Object{
+            oid: [1,3,6,1,2,1,1,6,0],
+            type: 4,
+            value: ""
+          }
+        },
+        { :ok,
+          %SNMPMIB.Object{
+            oid: [1,3,6,1,2,1,1,7,0],
+            type: 2,
+            value: 78
+          }
+        },
+        { :ok,
+          %SNMPMIB.Object{
+            oid: [1,3,6,1,2,1,1,8,0],
+            type: 2,
+            value: "0"
+          }
+        },
       ]
   end
 
@@ -51,9 +103,27 @@ Compiled Wed 18-Aug-10 07:55 by prod_rel_team
 .1.3.6.1.2.1.1.8.0 = 0"
 
     assert NetSNMP.Parse.parse_snmp_output(output) ==
-      [ {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 6, 0], type: 4, value: ""}},
-        {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 7, 0], type: 2, value: 78}},
-        {:ok, %SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 1, 8, 0], type: 2, value: "0"}}
+      [ { :ok,
+          %SNMPMIB.Object{
+            oid: [1,3,6,1,2,1,1,6,0],
+            type: 4,
+            value: ""
+          }
+        },
+        { :ok,
+          %SNMPMIB.Object{
+            oid: [1,3,6,1,2,1,1,7,0],
+            type: 2,
+            value: 78
+          }
+        },
+        { :ok,
+          %SNMPMIB.Object{
+            oid: [1,3,6,1,2,1,1,8,0],
+            type: 2,
+            value: "0"
+          }
+        },
       ]
   end
 
@@ -101,7 +171,8 @@ Dest||Mask||Tos||NextHop||IfIndex||Type||Proto||Age||Info||NextHopAS||Metric1||M
     ]
   end
 
-  test "Returns correct error when parsing snmptable output" do
+  test "Returns correct error when parsing snmptable output"
+  do
     output =
       """
       Bad operator (INTEGER): At line 73 in /usr/share/mibs/ietf/SNMPv2-PDU
@@ -114,6 +185,8 @@ Dest||Mask||Tos||NextHop||IfIndex||Type||Proto||Age||Info||NextHopAS||Metric1||M
       snmptable: Unknown user name
       """
 
-    assert NetSNMP.Parse.parse_snmp_table_output(output) == [{:error, :snmperr_unknown_user_name}]
+    result = NetSNMP.Parse.parse_snmp_table_output output
+
+    assert result == [{:error, :snmperr_unknown_user_name}]
   end
 end
