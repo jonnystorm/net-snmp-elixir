@@ -36,9 +36,6 @@ iex> |> Map.put(:varbinds, [%{oid: "1.3.6.1.2.1.1.5.0", value: "Router1"}])
 iex> |> NetSNMP2.request
 [ok: %{oid: [1, 3, 6, 1, 2, 1, 1, 5, 0], type: :string, value: "Router1"}]
 
-iex> ip_cidr_route_table_object = SNMPMIB.object "1.3.6.1.2.1.4.24.4", :any, nil
-%SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 4, 24, 4], type: 0, value: nil}
-
 iex> %{uri: uri, credential: credential}
 iex> |> Map.put(:varbinds, [%{oid: [1,3,6,1,2,1,4,24,4], type: :table}])
 iex> |> NetSNMP2.request
