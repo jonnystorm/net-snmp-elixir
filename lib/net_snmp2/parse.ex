@@ -2,10 +2,69 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-defmodule NetSNMP.Parse do
+defmodule NetSNMP2.Parse do
   @moduledoc false
 
   require Logger
+
+  def oid_list_to_string(oid_list)
+      when is_list oid_list
+  do
+    Enum.join(oid_list, ".")
+  end
+
+  def oid_list_to_string(term),
+    do: term
+
+  def oid_string_to_list(oid_string)
+      when is_binary oid_string
+  do
+    oid_string
+    |> String.split(".", trim: true)
+    |> Enum.map(&String.to_integer/1)
+  end
+
+  def oid_string_to_list(term),
+    do: term
+
+  defp cast_value_to_type(nil),
+    do: nil
+
+  defp cast_value_to_type(varbind) do
+    case varbind.type do
+      type when type in [
+        :integer,
+        :counter32,
+        :unsigned32,
+        :gauge32,
+        :time_ticks,
+        :counter64,
+        :unsigned64,
+      ] ->
+        %{varbind |
+          value: String.to_integer(varbind.value),
+        }
+
+      :ip_address ->
+        result =
+          varbind.value
+          |> :binary.bin_to_list
+          |> :inet.ip
+
+        case result do
+          {:ok, next_value} ->
+            %{varbind|value: next_value}
+
+          _ ->
+            :ok = Logger.warn "Unable to cast value #{inspect varbind.value} to type IpAddress"
+
+            varbind
+        end
+
+      _ ->
+        varbind
+    end
+  end
 
   # "STRING:"          -> :string
   # "Counter32:"       -> :counter32
@@ -43,7 +102,7 @@ defmodule NetSNMP.Parse do
         ~r/Importing .* from replacement module .* instead of .* (.*)/,
         ~r/Cannot adopt OID in .*: .* ::= { .* \d* }/,
         ~r/Warning: Module .* was in .* now is .*/,
-        ~r|add_mibdir: strings scanned in from .*/.* |,
+        ~r"add_mibdir: strings scanned in from .*/.* ",
         ~r/Failed to parse MIB file .*/,
         ~r/failed to allocated memory for gpMibErrorString/,
         ~r/^Attempt to define a root oid/,
@@ -106,7 +165,7 @@ defmodule NetSNMP.Parse do
         ~r/^Expected "\]"/,
         ~r/^Expected "{"/,
         ~r/^Expected "}"/,
-        ~r"^Expected a closing parenthesis",
+        ~r/^Expected a closing parenthesis/,
         ~r/^Expected "{" after DEFVAL/,
         ~r/^Expected "}" after group list/,
         ~r/^Expected "}" after list/,
@@ -162,45 +221,45 @@ defmodule NetSNMP.Parse do
     #   `snmplib/snmp_client.c`. Names taken from
     #   `include/net-snmp/library/snmp.h`.
     %{"(noError) No Error" =>
-        :snmp_err_noerror,
+        :no_error,
       "(tooBig) Response message would have been too large." =>
-        :snmp_err_toobig,
+        :too_big,
       "(noSuchName) There is no such variable name in this MIB." =>
-        :snmp_err_nosuchname,
+        :no_such_name,
       "(badValue) The value given has the wrong type or length." =>
-        :snmp_err_badvalue,
+        :bad_value,
       "(readOnly) The two parties used do not have access to use the specified SNMP PDU." =>
-        :snmp_err_readonly,
+        :read_only,
       "(genError) A general failure occured" =>
-        :snmp_err_generr,
+        :gen_err,
       "noAccess" =>
-        :snmp_err_noaccess,
+        :no_access,
       "wrongType" =>
-        :snmp_err_wrongtype,
+        :wrong_type,
       "wrongLength" =>
-        :snmp_err_wronglength,
+        :wrong_length,
       "wrongEncoding" =>
-        :snmp_err_wrongencoding,
+        :wrong_encoding,
       "wrongValue" =>
-        :snmp_err_wrongvalue,
+        :wrong_value,
       "noCreation" =>
-        :snmp_err_nocreation,
+        :no_creation,
       "inconsistentValue" =>
-        :snmp_err_inconsistentvalue,
+        :inconsistent_value,
       "resourceUnavailable" =>
-        :snmp_err_resourceunavailable,
+        :resource_unavailable,
       "commitFailed" =>
-        :snmp_err_commitfailed,
+        :commit_failed,
       "undoFailed" =>
-        :snmp_err_undofailed,
+        :undo_failed,
       "authorizationError" =>
-        :snmp_err_authorizationerror,
+        :authorization_error,
       "notWritable" =>
-        :snmp_err_notwritable,
+        :not_writable,
       "inconsistentName" =>
-        :snmp_err_inconsistentname,
+        :inconsistent_name,
       "Unknown Error" =>
-        :snmp_err_unknown
+        :unknown
     }[message]
   end
 
@@ -208,147 +267,147 @@ defmodule NetSNMP.Parse do
     # Messages taken from `api_errors` in
     #   `snmplib/snmp_api.c`.
     %{"No error" =>
-        :snmperr_success,
+        :success,
       "Generic error" =>
-        :snmperr_generr,
+        :generr,
       "Invalid local port" =>
-        :snmperr_bad_locport,
+        :bad_locport,
       "Unknown host" =>
-        :snmperr_bad_address,
+        :bad_address,
       "Unknown session" =>
-        :snmperr_bad_session,
+        :bad_session,
       "Too long" =>
-        :snmperr_too_long,
+        :too_long,
       "No socket" =>
-        :snmperr_no_socket,
+        :no_socket,
       "Cannot send V2 PDU on V1 session" =>
-        :snmperr_v2_in_v1,
+        :v2_in_v1,
       "Cannot send V1 PDU on V2 session" =>
-        :snmperr_v1_in_v2,
+        :v1_in_v2,
       "Bad value for non-repeaters" =>
-        :snmperr_bad_repeaters,
+        :bad_repeaters,
       "Bad value for max-repetitions" =>
-        :snmperr_bad_repetitions,
+        :bad_repetitions,
       "Error building ASN.1 representation" =>
-        :snmperr_bad_asn1_build,
+        :bad_asn1_build,
       "Failure in sendto" =>
-        :snmperr_bad_sendto,
+        :bad_sendto,
       "Bad parse of ASN.1 type" =>
-        :snmperr_bad_parse,
+        :bad_parse,
       "Bad version specified" =>
-        :snmperr_bad_version,
+        :bad_version,
       "Bad source party specified" =>
-        :snmperr_bad_src_party,
+        :bad_src_party,
       "Bad destination party specified" =>
-        :snmperr_bad_dst_party,
+        :bad_dst_party,
       "Bad context specified" =>
-        :snmperr_bad_context,
+        :bad_context,
       "Bad community specified" =>
-        :snmperr_bad_community,
+        :bad_community,
       "Cannot send noAuth/Priv" =>
-        :snmperr_noauth_despriv,
+        :noauth_despriv,
       "Bad ACL definition" =>
-        :snmperr_bad_acl,
+        :bad_acl,
       "Bad Party definition" =>
-        :snmperr_bad_party,
+        :bad_party,
       "Session abort failure" =>
-        :snmperr_abort,
+        :abort,
       "Unknown PDU type" =>
-        :snmperr_unknown_pdu,
+        :unknown_pdu,
       "Timeout" =>
-        :snmperr_timeout,
+        :timeout,
       "Failure in recvfrom" =>
-        :snmperr_bad_recvfrom,
+        :bad_recvfrom,
       "Unable to determine contextEngineID" =>
-        :snmperr_bad_eng_id,
+        :bad_eng_id,
       "No securityName specified" =>
-        :snmperr_bad_sec_name,
+        :bad_sec_name,
       "Unable to determine securityLevel" =>
-        :snmperr_bad_sec_level,
+        :bad_sec_level,
       "ASN.1 parse error in message" =>
-        :snmperr_asn_parse_err,
+        :asn_parse_err,
       "Unknown security model in message" =>
-        :snmperr_unknown_sec_model,
+        :unknown_sec_model,
       "Invalid message" =>
-        :snmperr_invalid_msg,
+        :invalid_msg,
       "Unknown engine ID" =>
-        :snmperr_unknown_eng_id,
+        :unknown_eng_id,
       "Unknown user name" =>
-        :snmperr_unknown_user_name,
+        :unknown_user_name,
       "Unsupported security level" =>
-        :snmperr_unsupported_sec_level,
+        :unsupported_sec_level,
       "Authentication failure" =>
-        :snmperr_authentication_failure,
+        :authentication_failure,
       "Not in time window" =>
-        :snmperr_not_in_time_window,
+        :not_in_time_window,
       "Decryption error" =>
-        :snmperr_decryption_err,
+        :decryption_err,
       "SCAPI general failure" =>
-        :snmperr_sc_general_failure,
+        :sc_general_failure,
       "SCAPI sub-system not configured" =>
-        :snmperr_sc_not_configured,
+        :sc_not_configured,
       "Key tools not available" =>
-        :snmperr_kt_not_available,
+        :kt_not_available,
       "Unknown Report message" =>
-        :snmperr_unknown_report,
+        :unknown_report,
       "USM generic error" =>
-        :snmperr_usm_genericerror,
+        :usm_genericerror,
       "USM unknown security name" =>
-        :snmperr_usm_unknownsecurityname,
+        :usm_unknownsecurityname,
       "USM unsupported security level" =>
-        :snmperr_usm_unsupportedsecuritylevel,
+        :usm_unsupportedsecuritylevel,
       "USM encryption error" =>
-        :snmperr_usm_encryptionerror,
+        :usm_encryptionerror,
       "USM authentication failure" =>
-        :snmperr_usm_authenticationfailure,
+        :usm_authenticationfailure,
       "USM parse error" =>
-        :snmperr_usm_parseerror,
+        :usm_parseerror,
       "USM unknown engineID" =>
-        :snmperr_usm_unknownengineid,
+        :usm_unknownengineid,
       "USM not in time window" =>
-        :snmperr_usm_notintimewindow,
+        :usm_notintimewindow,
       "USM decryption error" =>
-        :snmperr_usm_decryptionerror,
+        :usm_decryptionerror,
       "MIB not initialized" =>
-        :snmperr_nomib,
+        :nomib,
       "Value out of range" =>
-        :snmperr_range,
+        :range,
       "Sub-id out of range" =>
-        :snmperr_max_subid,
+        :max_subid,
       "Bad sub-id in object identifier" =>
-        :snmperr_bad_subid,
+        :bad_subid,
       "Object identifier too long" =>
-        :snmperr_long_oid,
+        :long_oid,
       "Bad value name" =>
-        :snmperr_bad_name,
+        :bad_name,
       "Bad value notation" =>
-        :snmperr_value,
+        :value,
       "Unknown Object Identifier" =>
-        :snmperr_unknown_objid,
+        :unknown_objid,
       "No PDU in snmp_send" =>
-        :snmperr_null_pdu,
+        :null_pdu,
       "Missing variables in PDU" =>
-        :snmperr_no_vars,
+        :no_vars,
       "Bad variable type" =>
-        :snmperr_var_type,
+        :var_type,
       "Out of memory (malloc failure)" =>
-        :snmperr_malloc,
+        :malloc,
       "Kerberos related error" =>
-        :snmperr_krb5,
+        :krb5,
       "Protocol error" =>
-        :snmperr_protocol,
+        :protocol,
       "OID not increasing" =>
-        :snmperr_oid_nonincreasing,
+        :oid_nonincreasing,
       "Context probe" =>
-        :snmperr_just_a_context_probe,
+        :just_a_context_probe,
       "Configuration data found but the transport can't be configured" =>
-        :snmperr_transport_no_config,
+        :transport_no_config,
       "Transport configuration failed" =>
-        :snmperr_transport_config_error
+        :transport_config_error
     }[message]
   end
 
-  defp parse_snmp_error(error_line) do
+  defp parse_snmp_error([error_line|rest]) do
     error_words =
       error_line
       |> String.split(" (")
@@ -356,41 +415,65 @@ defmodule NetSNMP.Parse do
       |> String.split
 
     case error_words do
-      ["Timeout:" | _] ->
+      ["Timeout:"|_] ->
         {:error, :etimedout}
 
-      ["Reason:" | reason_words] ->
-        reason =
+      ["Reason:"|reason_words] ->
+        error =
           reason_words
           |> Enum.join(" ")
           |> get_snmp_client_error
 
-        {:error, reason}
+        [next_line|rest2] = rest
 
-      [_, "=", "No", "Such", "Object"|_] ->
-        {:error, :snmp_nosuchobject}
+        ["Failed", "object:", oid_string|_] =
+          String.split next_line
 
-      [_, "=", "No", "Such", "Instance"|_] ->
-        {:error, :snmp_nosuchinstance}
+        oid   = oid_string_to_list oid_string
+        error =
+          {:error, {error, oid}}
 
-      [_, "=", "No", "more", "variables"|_] ->
-        {:error, :snmp_endofmibview}
+        %{error: error, lines: rest2}
 
-      ["Was", "that", "a", "table?"|_] ->
-        {:error, :was_that_a_table?}
+      [object_name, "No", "entries"] ->
+        object_name2 =
+          object_name
+          |> String.trim_trailing(":")
 
-      [_, "No", "entries"] ->
-        []
+        {:error, {:no_entries, object_name2}}
+
+      [oid, "=", "No", "Such", "Object"|_] ->
+        %{oid:   oid,
+          type:  :no_such_object,
+          value: nil,
+        }
+
+      [oid, "=", "No", "Such", "Instance"|_] ->
+        %{oid:   oid,
+          type:  :no_such_instance,
+          value: nil,
+        }
+
+      [oid, "=", "No", "more", "variables"|_] ->
+        %{oid:   oid,
+          type:  :end_of_mib_view,
+          value: nil,
+        }
+
+      ["Was", "that", "a", "table?", object_name|_] ->
+        {:error, {:was_that_a_table?, object_name}}
 
       [program|reason_words]
           when program in [
             "snmpget:",
             "snmpset:",
             "snmpwalk:",
-            "snmptable:"
+            "snmptable:",
           ]
       ->
-        reason_string = Enum.join(reason_words, " ")
+        reason_string =
+          Enum.join(reason_words, " ")
+
         reason =
           get_snmp_api_error reason_string
 
@@ -398,7 +481,7 @@ defmodule NetSNMP.Parse do
           :ok = Logger.warn "Received unknown error: '#{reason_string}'"
         end
 
-        {:error, reason}
+        {:error, {:api_error, reason}}
 
       _ ->
         unknown = Enum.join(error_words, " ")
@@ -409,52 +492,61 @@ defmodule NetSNMP.Parse do
     end
   end
 
-  defp parse_snmp_output_line(line) do
+  defp parse_snmp_output_line([line|rest]) do
     try do
       case String.split(line, " ", parts: 3) do
         [oid, "=", "\"\""] ->
-          {oid, :string, ""}
+          %{oid:   oid,
+            type:  :string,
+            value: "",
+          }
 
         [oid, "=", typed_value] ->
-          {type, value} =
-            case String.split(typed_value, ": ", parts: 2)
-            do
-              [type_string, value] ->
-                type = type_string_to_type type_string
+          case String.split(typed_value, ": ", parts: 2)
+          do
+            [type_string, value] ->
+              type = type_string_to_type type_string
 
-                {type, value}
+              %{oid:   oid,
+                type:  type,
+                value: value,
+              }
 
-              [value] ->
-                # Assume bare value is timetick.
-                # Explode if it can't be parsed as integer.
-                #
-                _ = String.to_integer value
+            [value] ->
+              # Assume bare value is timetick.
+              # Explode if it can't be parsed as integer.
+              #
+              _ = String.to_integer value
 
-                {:timeticks, value}
-            end
+              formatted_value =
+                String.replace(value, ~r/^"|"$/, "")
 
-          formatted_value =
-            String.replace(value, ~r/^"|"$/, "")
-
-          {oid, type, formatted_value}
+              %{oid:   oid,
+                type:  :time_ticks,
+                value: formatted_value,
+              }
+          end
       end
     rescue
       _ ->
-        parse_snmp_error line
+        parse_snmp_error [line|rest]
     end
   end
 
-  defp otv_tuple_to_object_kw_list({}),
+  defp varbind_to_kw_list(nil),
     do: []
 
-  defp otv_tuple_to_object_kw_list({oid, type, value}),
-    do: [ok: SNMPMIB.object(oid, type, value)]
+  defp varbind_to_kw_list(varbind),
+    do: [ok: varbind]
 
-  defp append_line_to_otv_tuple({}, _line),
-    do: {}
+  defp append_line_to_varbind(nil, _line),
+    do: nil
 
-  defp append_line_to_otv_tuple({oid, type, value}, line),
-    do: {oid, type, "#{value}\n#{line}"}
+  defp append_line_to_varbind(varbind, line) do
+    %{varbind |
+      value: "#{varbind.value}\n#{line}",
+    }
+  end
 
   # Overcomplicated parsing process imbued with fear and
   # uncertainty. Largely a product of having to treat
@@ -475,37 +567,60 @@ defmodule NetSNMP.Parse do
   #    oid-type-value tuple (if there is one) and return the
   #    accumulator
   #
-  defp _parse_snmp_output([], {{}, acc}),
+  defp _parse_snmp_output([], {nil, acc}),
     do: acc
 
-  defp _parse_snmp_output([], {otv_tuple, acc}),
-    do: acc ++ otv_tuple_to_object_kw_list(otv_tuple)
+  defp _parse_snmp_output([], {varbind, acc}) do
+    acc ++ (
+      varbind
+      |> cast_value_to_type
+      |> varbind_to_kw_list
+    )
+  end
 
-  defp _parse_snmp_output([line|rest], {otv_tuple, acc}) do
-    next_state =
-      case parse_snmp_output_line(line) do
-        [] ->
-          {otv_tuple, acc}
+  defp _parse_snmp_output([line|rest], {varbind, acc}) do
+    case parse_snmp_output_line([line|rest]) do
+      {:error, {:no_entries, oid}} ->
+        :ok = Logger.info "No entries found for table #{inspect oid}"
 
-        {:error, :mib_parse_error} ->
-          {otv_tuple, acc}
+        next_state = {varbind, acc}
 
-        {:error, _} = error ->
-          {{}, acc ++ [error]}
+        _parse_snmp_output(rest, next_state)
 
-        {_oid, _type, _value} = result ->
-          kw_list = otv_tuple_to_object_kw_list otv_tuple
+      {:error, _} = error ->
+        next_state = {nil, acc ++ [error]}
 
-          {result, acc ++ kw_list}
+        _parse_snmp_output(rest, next_state)
 
-        nil ->
-          next_otv_tuple =
-            append_line_to_otv_tuple(otv_tuple, line)
+      %{error: error, lines: rest2} ->
+        next_state = {nil, acc ++ [error]}
 
-          {next_otv_tuple, acc}
-      end
+        _parse_snmp_output(rest2, next_state)
 
-    _parse_snmp_output(rest, next_state)
+      %{oid: _} = new_varbind ->
+        kw_list =
+          varbind
+          |> cast_value_to_type
+          |> varbind_to_kw_list
+
+        next_varbind =
+          %{new_varbind |
+            oid: oid_string_to_list(new_varbind.oid),
+          }
+
+        next_state =
+          {next_varbind, acc ++ kw_list}
+
+        _parse_snmp_output(rest, next_state)
+
+      nil ->
+        next_varbind =
+          append_line_to_varbind(varbind, line)
+
+        next_state = {next_varbind, acc}
+
+        _parse_snmp_output(rest, next_state)
+    end
   end
 
   # Output may take any of the following forms and more:
@@ -525,7 +640,7 @@ defmodule NetSNMP.Parse do
     |> debug_inline(& "Output is: '#{&1}'")
     |> scrub_snmp_output
     |> debug_inline(& "Scrubbed output is: '#{Enum.join(&1, "\n")}'")
-    |> _parse_snmp_output({{}, []})
+    |> _parse_snmp_output({nil, []})
   end
 
   defp debug_inline(output, message_fun) do
@@ -570,14 +685,14 @@ defmodule NetSNMP.Parse do
       SNMP table: IP-FORWARD-MIB::ipCidrRouteTable
 
       Dest||Mask||Tos||NextHop||IfIndex||Type||Proto||Age||Info||NextHopAS||Metric1||Metric2||Metric3||Metric4||Metric5||Status
-      192.0.2.0||255.255.255.252||0||0.0.0.0||2||3||2||170234||SNMPv2-SMI::zeroDotZero||0||0||-1||-1||-1||-1||1
+      192.0.2.0||255.255.255.252||0||0.0.0.0||2||3||2||170234||SNMPv2-SMI::zeroDotZero||0||0||-1||-1||-1||-1||?
 
   becomes
 
       [%{age: "173609", dest: "192.0.2.0", ifindex: "2",
          info: "SNMPv2-SMI::zeroDotZero", mask: "255.255.255.252", metric1: "0",
          metric2: "-1", metric3: "-1", metric4: "-1", metric5: "-1",
-         nexthop: "0.0.0.0", nexthopas: "0", proto: "2", status: "1", tos: "0",
+         nexthop: "0.0.0.0", nexthopas: "0", proto: "2", status: "?", tos: "0",
          type: "3"}]
   """
   @spec parse_snmp_table_output(String.t)
@@ -588,7 +703,7 @@ defmodule NetSNMP.Parse do
       output
       |> debug_inline(& "Output is: '#{&1}'")
       |> scrub_snmp_output
-      |> debug_inline(&"Scrubbed output is: '#{Enum.join(&1, "\n")}'")
+      |> debug_inline(& "Scrubbed output is: '#{Enum.join(&1, "\n")}'")
 
     cond do
       String.contains?(headers, " ") ->

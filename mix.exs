@@ -3,15 +3,19 @@ defmodule NetSNMP.Mixfile do
 
   def project do
     [ app: :net_snmp_ex,
-      version: "0.0.32",
+      version: "0.1.0",
       name: "NetSNMP",
       source_url: "https://github.com/jonnystorm/net-snmp-elixir",
-      elixir: "~> 1.3",
+      elixir: "~> 1.4",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps(),
       docs: [extras: ["README.md"]],
       dialyzer: [
+        add_plt_apps: [
+          :logger,
+          :snmp_mib_ex,
+        ],
         ignore_warnings: "dialyzer.ignore",
         flags: [
           :unmatched_returns,

@@ -11,7 +11,48 @@ should provide 90% of what `net-snmp-elixir` does.
 
 See the [API documentation](https://jonnystorm.github.io/net-snmp-elixir).
 
-### To use:
+## Two APIs
+
+A new request API is now provided by the `NetSNMP2` module.
+The original API (`NetSNMP`) remains untouched.
+
+### To use the new API:
+
+```elixir
+iex> credential = NetSNMP2.credential :v2c, "public"
+%{version: "2", community: "public"}
+
+iex> uri = URI.parse "snmp://192.0.2.2"
+%URI{authority: "192.0.2.2", fragment: nil, host: "192.0.2.2", path: nil,
+ port: nil, query: nil, scheme: "snmp", userinfo: nil}
+
+iex> %{uri: uri, credential: credential}
+iex> |> Map.put(:varbinds, [%{oid: "1.3.6.1.2.1.1.5.0"}])
+iex> |> NetSNMP2.request
+[ok: %{oid: [1, 3, 6, 1, 2, 1, 1, 5, 0], type: :string, value: "R1"}]
+
+iex> %{uri: uri, credential: credential}
+iex> |> Map.put(:varbinds, [%{oid: "1.3.6.1.2.1.1.5.0", value: "Router1"}])
+iex> |> NetSNMP2.request
+[ok: %{oid: [1, 3, 6, 1, 2, 1, 1, 5, 0], type: :string, value: "Router1"}]
+
+iex> ip_cidr_route_table_object = SNMPMIB.object "1.3.6.1.2.1.4.24.4", :any, nil
+%SNMPMIB.Object{oid: [1, 3, 6, 1, 2, 1, 4, 24, 4], type: 0, value: nil}
+
+iex> %{uri: uri, credential: credential}
+iex> |> Map.put(:varbinds, [%{oid: [1,3,6,1,2,1,4,24,4], type: :table}])
+iex> NetSNMP.request
+[%{age: "313", dest: "192.0.2.2", ifindex: "2", info: "SNMPv2-SMI::zeroDotZero",
+   mask: "255.255.255.254", metric1: "0", metric2: "-1", metric3: "-1",
+   metric4: "-1", metric5: "-1", nexthop: "0.0.0.0", nexthopas: "0", proto: "2",
+   status: "1", tos: "0", type: "3"},
+ %{age: "2", dest: "192.0.2.33", ifindex: "6", info: "SNMPv2-SMI::zeroDotZero",
+   mask: "255.255.255.255", metric1: "0", metric2: "-1", metric3: "-1",
+   metric4: "-1", metric5: "-1", nexthop: "0.0.0.0", nexthopas: "0", proto: "2",
+   status: "1", tos: "0", type: "3"}]
+```
+
+### To use the original API:
 
 ```elixir
 iex> credential = NetSNMP.credential :v2c, "public"
