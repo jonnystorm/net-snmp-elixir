@@ -41,7 +41,7 @@ iex> ip_cidr_route_table_object = SNMPMIB.object "1.3.6.1.2.1.4.24.4", :any, nil
 
 iex> %{uri: uri, credential: credential}
 iex> |> Map.put(:varbinds, [%{oid: [1,3,6,1,2,1,4,24,4], type: :table}])
-iex> NetSNMP.request
+iex> |> NetSNMP2.request
 [%{age: "313", dest: "192.0.2.2", ifindex: "2", info: "SNMPv2-SMI::zeroDotZero",
    mask: "255.255.255.254", metric1: "0", metric2: "-1", metric3: "-1",
    metric4: "-1", metric5: "-1", nexthop: "0.0.0.0", nexthopas: "0", proto: "2",
