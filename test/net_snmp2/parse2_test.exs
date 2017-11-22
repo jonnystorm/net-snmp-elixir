@@ -1,4 +1,4 @@
-defmodule NetSNMP.ParseTest do
+defmodule NetSNMP2.ParseTest do
   use ExUnit.Case
 
   test "Removes all MIB parse errors from output" do
@@ -106,7 +106,7 @@ defmodule NetSNMP.ParseTest do
 
     result =
       output
-      |> NetSNMP.Parse.remove_mib_parse_errors
+      |> NetSNMP2.Parse.remove_mib_parse_errors
       |> Enum.into([])
 
     assert result == []
@@ -121,7 +121,7 @@ defmodule NetSNMP.ParseTest do
 
     result =
       output
-      |> NetSNMP.Parse.remove_mib_parse_errors
+      |> NetSNMP2.Parse.remove_mib_parse_errors
       |> Enum.into([])
 
     assert result == output

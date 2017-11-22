@@ -3,7 +3,6 @@
 while true; do
   inotifywait --exclude \..*\.sw. -re modify .
   clear
-  mix compile &&
-    mix test &&
-    env MIX_ENV=test mix dialyzer --halt-exit-status
+  mix test --include integrated &&
+    MIX_ENV=test mix dialyzer --halt-exit-status
 done
