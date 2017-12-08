@@ -252,6 +252,7 @@ defmodule NetSNMP2 do
         {:auth_pass,  v} -> "-A '#{v}'"
         {:priv_proto, v} -> "-x  #{v}"
         {:priv_pass,  v} -> "-X '#{v}'"
+                       _ -> ""
       end
 
     _credential_to_args(tail, [arg|acc])
