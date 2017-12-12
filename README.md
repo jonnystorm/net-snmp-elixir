@@ -26,16 +26,19 @@ iex> uri = URI.parse "snmp://192.0.2.2"
 %URI{authority: "192.0.2.2", fragment: nil, host: "192.0.2.2", path: nil,
  port: nil, query: nil, scheme: "snmp", userinfo: nil}
 
+# GET
 iex> %{uri: uri, credential: credential}
 iex> |> Map.put(:varbinds, [%{oid: "1.3.6.1.2.1.1.5.0"}])
 iex> |> NetSNMP2.request
 [ok: %{oid: [1, 3, 6, 1, 2, 1, 1, 5, 0], type: :string, value: "R1"}]
 
+# SET
 iex> %{uri: uri, credential: credential}
 iex> |> Map.put(:varbinds, [%{oid: "1.3.6.1.2.1.1.5.0", value: "Router1"}])
 iex> |> NetSNMP2.request
 [ok: %{oid: [1, 3, 6, 1, 2, 1, 1, 5, 0], type: :string, value: "Router1"}]
 
+# Table
 iex> %{uri: uri, credential: credential}
 iex> |> Map.put(:varbinds, [%{oid: [1,3,6,1,2,1,4,24,4], type: :table}])
 iex> |> NetSNMP2.request
