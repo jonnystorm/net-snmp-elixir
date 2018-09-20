@@ -1,12 +1,12 @@
 net-snmp-elixir
 =======
-[![Build Status](https://travis-ci.org/jonnystorm/net-snmp-elixir.svg?branch=master)](https://travis-ci.org/jonnystorm/net-snmp-elixir)
+[![Build Status](https://gitlab.com/jonnystorm/snmp-elixir/badges/master/pipeline.svg)](https://gitlab.com/jonnystorm/snmp-elixir/commits/master)
 
 A thin layer of Elixir poured atop net-snmp utilities.
-To be used with [snmp-mib-elixir](https://github.com/jonnystorm/snmp-mib-elixir).
+To be used with [snmp-mib-elixir](https://gitlab.com/jonnystorm/snmp-mib-elixir).
 
 If you're able, please consider contributing to
-[snmp-elixir](https://github.com/jonnystorm/snmp-elixir); OTP, as is,
+[snmp-elixir](https://gitlab.com/jonnystorm/snmp-elixir); OTP, as is,
 should provide 90% of what `net-snmp-elixir` does.
 
 See the [API documentation](https://jonnystorm.github.io/net-snmp-elixir).
