@@ -47,7 +47,7 @@ defmodule NetSNMP.Mixfile do
   end
 
   defp deps do
-    [ {:snmp_mib_ex, git: "https://gitlab.com/jonnystorm/snmp-mib-elixir"},
+    [ {:snmp_mib_ex, git: "https://gitlab.com/jonnystorm/snmp-mib-elixir.git"},
       {:ex_doc, "~> 0.15", only: :dev}
     ]
   end
