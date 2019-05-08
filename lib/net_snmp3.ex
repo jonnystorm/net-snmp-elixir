@@ -3,12 +3,17 @@
 # not distributed with this file, You can obtain one at
 # http://mozilla.org/MPL/2.0/.
 
-defmodule NetSNMP2 do
-  @moduledoc """
-  A Net-SNMP library supporting SNMPv1/2/3.
-  """
+defmodule NetSNMP3 do
+  @moduledoc false
+  #@moduledoc """
+  #A Net-SNMP library supporting SNMPv1/2/3.
+  #"""
 
-  alias NetSNMP2.Parse
+
+  # THIS MODULE IS NOT STABLE! USE AT YOUR OWN RISK.
+  #
+
+  alias NetSNMP3.Parse
 
   @doc """
   Returns a keyword list containing the given SNMPv1/2/3

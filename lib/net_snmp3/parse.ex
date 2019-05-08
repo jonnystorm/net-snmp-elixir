@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-defmodule NetSNMP2.Parse do
+defmodule NetSNMP3.Parse do
   @moduledoc false
 
   require Logger
@@ -60,6 +60,15 @@ defmodule NetSNMP2.Parse do
 
             varbind
         end
+
+      :oid ->
+        result =
+          varbind.value
+          |> String.trim_leading(".")
+          |> String.split(".")
+          |> Enum.map(&String.to_integer/1)
+
+        %{varbind|value: result}
 
       _ ->
         varbind
