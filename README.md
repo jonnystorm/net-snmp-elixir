@@ -19,7 +19,7 @@ The original API (`NetSNMP`) remains untouched.
 ### To use the new API:
 
 ```elixir
-iex> credential = NetSNMP2.credential :v2c, "public"
+iex> credential = NetSNMP2.credential :v2, "public"
 %{version: "2", community: "public"}
 
 iex> uri = URI.parse "snmp://192.0.2.2"

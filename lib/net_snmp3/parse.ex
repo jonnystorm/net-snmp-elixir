@@ -503,11 +503,21 @@ defmodule NetSNMP3.Parse do
           case String.split(typed_value, ": ", parts: 2)
           do
             [type_string, value] ->
-              type = type_string_to_type type_string
+              type = type_string_to_type(type_string)
 
               %{oid:   oid,
                 type:  type,
                 value: value,
+              }
+
+            ["STRING:" = type_string] ->
+              # Received empty or whitespace string
+              #
+              type = type_string_to_type(type_string)
+
+              %{oid:   oid,
+                type:  type,
+                value: "",
               }
 
             [value] ->
@@ -578,13 +588,6 @@ defmodule NetSNMP3.Parse do
 
   defp _parse_snmp_output([line|rest], {varbind, acc}) do
     case parse_snmp_output_line([line|rest]) do
-      {:error, {:no_entries, oid}} ->
-        :ok = Logger.info "No entries found for table #{inspect oid}"
-
-        next_state = {varbind, acc}
-
-        _parse_snmp_output(rest, next_state)
-
       {:error, _} = error ->
         next_state = {nil, acc ++ [error]}
 
