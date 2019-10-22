@@ -9,6 +9,7 @@ defmodule NetSNMP3Check do
     _ =
       with [%{}|_] = rows <-
              %{uri: URI.parse("snmp://192.0.2.1"),
+               context: "",
                credential: %{version: "2", community: "c"},
                varbinds: [
                  %{oid: ".1.1.1.1.1.1.1.1.1", type: :table, value: nil},

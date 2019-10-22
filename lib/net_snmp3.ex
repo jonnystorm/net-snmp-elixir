@@ -358,6 +358,11 @@ defmodule NetSNMP3 do
          credential: map,
          varbinds: [req_varbind],
        }
+     | %{uri: URI.t,
+         credential: map,
+         varbinds: [req_varbind],
+         context: binary,
+       }
 
   @type varbind
     :: %{oid:   object_id,
