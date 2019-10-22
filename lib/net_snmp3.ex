@@ -340,31 +340,39 @@ defmodule NetSNMP3 do
     |> :binary.list_to_bin
   end
 
+  @type object_name :: binary
   @type object_id
-    :: binary
+    :: object_name
      | [non_neg_integer]
 
-  @type req_varbind :: %{oid: object_id}
+  @type asn1_type   :: atom
+  @type asn1_value  :: any
+
+  @type req_varbind
+    :: %{oid: object_id}
+     | %{oid: object_id, type: asn1_type}
+     | %{oid: object_id, type: asn1_type, value: asn1_value}
+
   @type request_args
     :: %{uri: URI.t,
-         credential: %{},
+         credential: map,
          varbinds: [req_varbind],
        }
 
-  @type object_name :: binary
-  @type asn1_type   :: atom
-  @type asn1_value  :: any
   @type varbind
     :: %{oid:   object_id,
          type:  asn1_type,
          value: asn1_value,
        }
 
-  @type response :: {:ok, varbind}
-  @type reason   :: atom | nil
+  @type response
+    :: {:ok, varbind}
+     | varbind
+
+  @type reason :: atom | nil
   @type net_snmp_error
     :: {:error, :etimedout}
-     | {:error, {   :api_error, reason}}
+     | {:error, {:api_error, reason}}
      | {:error, {:error_status, reason, object_id}}
      | {:error, {:was_that_a_table?, object_name}}
 
